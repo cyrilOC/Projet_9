@@ -2,6 +2,16 @@
 
 {% block content %}
     <p>Bienvenue sur LitRevu !</p>
+    <br>
+    <br>
+    {% if not user.is_authenticated %}
     <a href="{% url 'login' %}" class="button">Se connecter</a>
     <a href="{% url 'signup' %}" class="button">S'inscrire</a>
+    {% endif %}
+    {% if user.is_authenticated %}
+        <br>
+        <a href="{% url 'add_ticket' %}" class="button">Ajouter un billet</a>
+        <a href="{% url 'edit_ticket' ticket_id=1 %}" class="button">Modifier un billet</a>
+        <a href="{% url 'delete_ticket' ticket_id=1 %}" class="button">Supprimer un billet</a>
+    {% endif %}
 {% endblock content %}

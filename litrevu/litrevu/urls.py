@@ -43,4 +43,7 @@ urlpatterns = [
         template_name='authentication/password_change_done.html'),
         name='password_change_done'),
     path('', app.views.home, name='home'),
+    path('ticket/add/', app.views.add_ticket, name='add_ticket'),
+    path('ticket/<int:ticket_id>/delete/', app.views.delete_ticket, name='delete_ticket'),
+    path('ticket/<int:ticket_id>/edit/', app.views.edit_ticket, name='edit_ticket'),
 ]
