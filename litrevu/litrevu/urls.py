@@ -26,7 +26,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # path('', authentication.views.login_page, name='login'),
     # path('', authentication.views.LoginPageView.as_view(), name='login'),
-    path('', LoginView.as_view(
+    path('login/', LoginView.as_view(
         template_name='authentication/login.html',
         redirect_authenticated_user=True),
         name='login'),
@@ -42,5 +42,5 @@ urlpatterns = [
     path('password_change/done/', PasswordChangeDoneView.as_view(
         template_name='authentication/password_change_done.html'),
         name='password_change_done'),
-    path('home/', app.views.home, name='home'),
+    path('', app.views.home, name='home'),
 ]

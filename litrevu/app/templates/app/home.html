@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
-{% block content %}
-    <p>Vous êtes connecté et sur la page d'accueil</p>
 
+{% block content %}
+    <p>Bienvenue sur LitRevu !</p>
+    <a href="{% url 'login' %}" class="button">Se connecter</a>
+    <a href="{% url 'signup' %}" class="button">S'inscrire</a>
 {% endblock content %}

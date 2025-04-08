@@ -14,6 +14,8 @@ class Ticket(models.Model):
         to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     image = models.ImageField(null=True, blank=True)
     time_created = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=[('open', 'Ouvert'), ('closed', 'Fermé')], default='open')
+    priority = models.CharField(max_length=20, choices=[('low', 'Basse'), ('medium', 'Moyenne'), ('high', 'Haute')], default='medium')
 
 
 class Review(models.Model):
@@ -22,10 +24,12 @@ class Review(models.Model):
         # validates that rating must be between 0 and 5
         validators=[MinValueValidator(0), MaxValueValidator(5)])
     headline = models.CharField(max_length=128)
-    body = models.CharField(max_length=8192, blank=True)
+    body = models.TextField(max_length=2048, blank=True)
     user = models.ForeignKey(
         to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     time_created = models.DateTimeField(auto_now_add=True)
+    is_approved = models.BooleanField(default=False)
+    response = models.TextField(max_length=2048, blank=True, null=True)
 
 
 class UserFollows(models.Model):
@@ -34,6 +38,7 @@ class UserFollows(models.Model):
         to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='following')
     followed_user = models.ForeignKey(
         to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='followed_by')
+    follow_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         # ensures we don't get multiple UserFollows instances
