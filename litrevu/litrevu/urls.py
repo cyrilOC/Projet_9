@@ -40,7 +40,6 @@ urlpatterns = [
     path('abonnement/refresh/', app.views.refresh_abonnement, name='refresh_abonnement'),
     path('search_users/', app.views.search_users, name='search_users'),
     path('subscribe_user/', app.views.subscribe_user, name='subscribe_user'),
-    path('add_ticket/', app.views.add_ticket, name='add_ticket'),
     path('add_review/', app.views.add_review, name='add_review'),
     path('search_tickets/', app.views.search_tickets, name='search_tickets'),
 ]

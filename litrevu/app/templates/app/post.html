@@ -2,29 +2,50 @@
 
 {% block content %}
 <h2>Post</h2>
+{% if message %}
+    <p style="color: green;">{{ message }}</p>
+{% endif %}
 <div style="display: flex; justify-content: space-between;">
     <div style="width: 45%; border: 1px solid #ccc; padding: 20px;">
         <h3>Créer un ticket</h3>
-        <form method="post" action="{% url 'add_ticket' %}">
+        <form method="post" action="">
             {% csrf_token %}
             <label for="ticket-title">Titre du ticket :</label>
             <input type="text" id="ticket-title" name="title" required>
+            <br>
+            <br>
+            <label for="ticket-description">Description :</label>
+            <br>
+            <textarea id="ticket-description" name="description" required></textarea>
+            <br><br>
             <button type="submit">Créer le ticket</button>
         </form>
     </div>
     <div style="width: 45%; border: 1px solid #ccc; padding: 20px;">
         <h3>Créer une Critique</h3>
-        <form method="post" action="{% url 'add_review' %}">
+        <form method="post" action="">
             {% csrf_token %}
-            <label for="review-ticket">Pour quel ticket :</label>
+            <label for="review-ticket">Rechercher un ticket :</label>
             <input type="text" id="review-ticket" name="ticket_search" placeholder="Rechercher un ticket..." oninput="searchTickets(this.value)" required>
+            <br>
+            <br>
             <ul id="ticket-results"></ul>
+            <div id="selected-ticket"></div>
             <label for="review-headline">Titre de la critique :</label>
             <input type="text" id="review-headline" name="headline" required>
+            <br><br>
             <label for="review-body">Contenu :</label>
+            <br>
             <textarea id="review-body" name="body" required></textarea>
-            <label for="review-rating">Note :</label>
-            <input type="number" id="review-rating" name="rating" min="0" max="5" required>
+            <br><br>
+            <label>Note :</label>
+            <div id="star-rating" style="display: flex; gap: 5px;">
+                {% for i in "12345" %}
+                <span class="star" data-value="{{ i }}" style="font-size: 24px; cursor: pointer;">☆</span>
+                {% endfor %}
+            </div>
+            <input type="hidden" id="review-rating" name="rating" required>
+            <br><br>
             <button type="submit">Créer la critique</button>
         </form>
     </div>
@@ -38,14 +59,25 @@ function searchTickets(query) {
             results.innerHTML = '';
             data.forEach(ticket => {
                 const li = document.createElement('li');
-                li.textContent = ticket.title;
-                li.onclick = () => {
-                    document.getElementById('review-ticket').value = ticket.title;
-                    results.innerHTML = '';
-                };
+                li.innerHTML = `${ticket.title} <input type='radio' name='selected_ticket' value='${ticket.id}' onchange='selectTicket(${ticket.id})'>`;
                 results.appendChild(li);
             });
         });
 }
+
+function selectTicket(ticketId) {
+    const selectedTicket = document.getElementById('selected-ticket');
+    selectedTicket.innerHTML = `<input type='hidden' name='selected_ticket' value='${ticketId}'>`;
+}
+
+document.querySelectorAll('.star').forEach(star => {
+    star.addEventListener('click', function() {
+        const rating = this.getAttribute('data-value');
+        document.getElementById('review-rating').value = rating;
+        document.querySelectorAll('.star').forEach(s => {
+            s.textContent = s.getAttribute('data-value') <= rating ? '★' : '☆';
+        });
+    });
+});
 </script>
 {% endblock %}

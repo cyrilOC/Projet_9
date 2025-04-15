@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, redirect, render
-from .models import Ticket
+from .models import Ticket, Review  # Ensure Review is imported
 from .forms import TicketForm
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
@@ -41,7 +41,30 @@ def flux(request):
     return render(request, 'app/flux.html')
 
 def post(request):
-    return render(request, 'app/post.html')
+    tickets = Ticket.objects.filter(user=request.user)
+    message = None
+
+    if request.method == 'POST' and 'title' in request.POST:
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        if title and description:
+            Ticket.objects.create(title=title, description=description, user=request.user)
+            message = f"Le ticket '{title}' a été créé."
+
+    if request.method == 'POST' and 'headline' in request.POST:
+        ticket_id = request.POST.get('selected_ticket')
+        headline = request.POST.get('headline')
+        body = request.POST.get('body')
+        rating = request.POST.get('rating')
+
+        try:
+            ticket = Ticket.objects.get(id=ticket_id)
+            Review.objects.create(ticket=ticket, headline=headline, body=body, rating=rating, user=request.user)
+            message = "Votre critique a été créée."
+        except Ticket.DoesNotExist:
+            message = "Le ticket sélectionné n'existe pas."
+
+    return render(request, 'app/post.html', {'tickets': tickets, 'message': message})
 
 def abonnement(request):
     followers = [relation.user for relation in request.user.followed_by.all()]
