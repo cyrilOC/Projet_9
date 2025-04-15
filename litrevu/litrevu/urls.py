@@ -20,30 +20,27 @@ from django.urls import path
 import authentication.views
 import app.views
 
-from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView, PasswordChangeDoneView
+from django.contrib.auth.views import LoginView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path('', authentication.views.login_page, name='login'),
-    # path('', authentication.views.LoginPageView.as_view(), name='login'),
     path('login/', LoginView.as_view(
         template_name='authentication/login.html',
         redirect_authenticated_user=True),
         name='login'),
     path('signup/', authentication.views.signup, name='signup'),
     path('logout/', authentication.views.logout_user, name='logout'),
-    # path ('logout/', LogoutView.as_view(),
-        # template_name='authentication/logout.html'),
-        # name='logout'),
-    path('password_change/', PasswordChangeView.as_view(
-        template_name='authentication/password_change.html',
-        success_url='/password_change/done/'),
-        name='password_change'),
-    path('password_change/done/', PasswordChangeDoneView.as_view(
-        template_name='authentication/password_change_done.html'),
-        name='password_change_done'),
     path('', app.views.home, name='home'),
     path('ticket/add/', app.views.add_ticket, name='add_ticket'),
     path('ticket/<int:ticket_id>/delete/', app.views.delete_ticket, name='delete_ticket'),
     path('ticket/<int:ticket_id>/edit/', app.views.edit_ticket, name='edit_ticket'),
+    path('flux/', app.views.flux, name='flux'),
+    path('post/', app.views.post, name='post'),
+    path('abonnement/', app.views.abonnement, name='abonnement'),
+    path('abonnement/refresh/', app.views.refresh_abonnement, name='refresh_abonnement'),
+    path('search_users/', app.views.search_users, name='search_users'),
+    path('subscribe_user/', app.views.subscribe_user, name='subscribe_user'),
+    path('add_ticket/', app.views.add_ticket, name='add_ticket'),
+    path('add_review/', app.views.add_review, name='add_review'),
+    path('search_tickets/', app.views.search_tickets, name='search_tickets'),
 ]

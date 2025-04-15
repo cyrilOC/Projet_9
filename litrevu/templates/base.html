@@ -3,10 +3,18 @@
         <title>LitRevu</title>
     </head>
     <body>
-        <h1>LitRevu</h1>
-        {% block content %}{% endblock content %}
+        <h1 style="text-align: center;">LitRevu</h1>
         {% if user.is_authenticated %}
-            <p>Vous êtes connecté en tant que  {{ request.user }}. <a href="{% url 'logout' %}" title="Se déconnecter de votre compte">Se déconnecter</a></p>
+            <nav>
+                <ul style="display: flex; justify-content: center; list-style: none; padding: 0;">
+                    <li style="margin-right: 15px;"><a href="{% url 'flux' %}">Flux</a></li>
+                    <li style="margin-right: 15px;"><a href="{% url 'post' %}">Post</a></li>
+                    <li style="margin-right: 15px;"><a href="{% url 'abonnement' %}">Abonnement</a></li>
+                    <li>{{ request.user }} - <a href="{% url 'logout' %}">Se déconnecter</a></li>
+                </ul>
+            </nav>
         {% endif %}
+        {% block content %}{% endblock content %}
+        
     </body>
 </html>

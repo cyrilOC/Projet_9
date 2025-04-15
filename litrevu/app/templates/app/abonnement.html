@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Abonnement</h2>
+<div style="display: flex; justify-content: space-between;">
+    <div id="followers-section" style="width: 30%; border: 1px solid #ccc; padding: 10px;">
+        <h3>Abonnés</h3>
+        <ul>
+            {% for follower in followers %}
+                <li>{{ follower.username }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div id="following-section" style="width: 30%; border: 1px solid #ccc; padding: 10px;">
+        <h3>Abonné à</h3>
+        <ul>
+            {% for following in following %}
+                <li>{{ following.username }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div style="width: 30%; border: 1px solid #ccc; padding: 10px;">
+        <h3>Rechercher un utilisateur</h3>
+        <form method="get" action="">
+            <input type="text" name="search" id="search" placeholder="Rechercher..." oninput="searchUsers(this.value)">
+            <ul id="search-results"></ul>
+        </form>
+    </div>
+</div>
+<script>
+function searchUsers(query) {
+    fetch(`/search_users/?q=${query}`)
+        .then(response => response.json())
+        .then(data => {
+            const results = document.getElementById('search-results');
+            results.innerHTML = '';
+            data.forEach(user => {
+                const isChecked = user.is_followed ? 'checked' : '';
+                const li = document.createElement('li');
+                li.innerHTML = `${user.username} <input type='checkbox' ${isChecked} onchange='subscribeUser(${user.id}, this.checked)'>`;
+                results.appendChild(li);
+            });
+        });
+}
+
+function subscribeUser(userId, subscribe) {
+    fetch(`/subscribe_user/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ user_id: userId, subscribe: subscribe })
+    }).then(response => {
+        if (response.ok) {
+            refreshSections();
+        } else {
+            alert('Une erreur est survenue.');
+        }
+    });
+}
+
+function refreshSections() {
+    fetch(`/abonnement/refresh/`)
+        .then(response => response.json())
+        .then(data => {
+            const followersSection = document.getElementById('followers-section');
+            const followingSection = document.getElementById('following-section');
+
+            followersSection.innerHTML = '<h3>Abonnés</h3><ul>' +
+                data.followers.map(follower => `<li>${follower.username}</li>`).join('') + '</ul>';
+
+            followingSection.innerHTML = '<h3>Abonné à</h3><ul>' +
+                data.following.map(following => `<li>${following.username}</li>`).join('') + '</ul>';
+        });
+}
+</script>
+{% endblock %}

@@ -1,17 +1,28 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <p>Bienvenue sur LitRevu !</p>
-    <br>
-    <br>
-    {% if not user.is_authenticated %}
-    <a href="{% url 'login' %}" class="button">Se connecter</a>
-    <a href="{% url 'signup' %}" class="button">S'inscrire</a>
-    {% endif %}
-    {% if user.is_authenticated %}
-        <br>
-        <a href="{% url 'add_ticket' %}" class="button">Ajouter un billet</a>
-        <a href="{% url 'edit_ticket' ticket_id=1 %}" class="button">Modifier un billet</a>
-        <a href="{% url 'delete_ticket' ticket_id=1 %}" class="button">Supprimer un billet</a>
-    {% endif %}
+{% if not user.is_authenticated %}
+<div style="display: flex; justify-content: space-between;">
+    <div style="width: 45%; border: 1px solid #ccc; padding: 20px;">
+        <h2>Inscription</h2>
+        <p>Rejoignez-nous dès maintenant !</p>
+        <a href="{% url 'signup' %}" class="button">S'inscrire</a>
+    </div>
+    <div style="width: 45%; border: 1px solid #ccc; padding: 20px;">
+        <h2>Connexion</h2>
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <div>
+                <label for="id_username">Nom d'utilisateur :</label>
+                <input type="text" name="username" id="id_username" required>
+            </div>
+            <div>
+                <label for="id_password">Mot de passe :</label>
+                <input type="password" name="password" id="id_password" required>
+            </div>
+            <button type="submit">Se connecter</button>
+        </form>
+    </div>
+</div>
+{% endif %}
 {% endblock content %}

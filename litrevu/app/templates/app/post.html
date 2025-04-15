@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Post</h2>
+<div style="display: flex; justify-content: space-between;">
+    <div style="width: 45%; border: 1px solid #ccc; padding: 20px;">
+        <h3>Créer un ticket</h3>
+        <form method="post" action="{% url 'add_ticket' %}">
+            {% csrf_token %}
+            <label for="ticket-title">Titre du ticket :</label>
+            <input type="text" id="ticket-title" name="title" required>
+            <button type="submit">Créer le ticket</button>
+        </form>
+    </div>
+    <div style="width: 45%; border: 1px solid #ccc; padding: 20px;">
+        <h3>Créer une Critique</h3>
+        <form method="post" action="{% url 'add_review' %}">
+            {% csrf_token %}
+            <label for="review-ticket">Pour quel ticket :</label>
+            <input type="text" id="review-ticket" name="ticket_search" placeholder="Rechercher un ticket..." oninput="searchTickets(this.value)" required>
+            <ul id="ticket-results"></ul>
+            <label for="review-headline">Titre de la critique :</label>
+            <input type="text" id="review-headline" name="headline" required>
+            <label for="review-body">Contenu :</label>
+            <textarea id="review-body" name="body" required></textarea>
+            <label for="review-rating">Note :</label>
+            <input type="number" id="review-rating" name="rating" min="0" max="5" required>
+            <button type="submit">Créer la critique</button>
+        </form>
+    </div>
+</div>
+<script>
+function searchTickets(query) {
+    fetch(`/search_tickets/?q=${query}`)
+        .then(response => response.json())
+        .then(data => {
+            const results = document.getElementById('ticket-results');
+            results.innerHTML = '';
+            data.forEach(ticket => {
+                const li = document.createElement('li');
+                li.textContent = ticket.title;
+                li.onclick = () => {
+                    document.getElementById('review-ticket').value = ticket.title;
+                    results.innerHTML = '';
+                };
+                results.appendChild(li);
+            });
+        });
+}
+</script>
+{% endblock %}
