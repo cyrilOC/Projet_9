@@ -80,19 +80,17 @@ def user_flux(request, user_id):
     User = get_user_model()
     target_user = get_object_or_404(User, id=user_id)
     
-    # Récupérer les tickets créés par l'utilisateur cible
+    # Vérifier si l'utilisateur est déjà suivi par l'utilisateur connecté
+    is_followed = UserFollows.objects.filter(
+        user=request.user, 
+        followed_user=target_user
+    ).exists()
+    
+    # Le reste du code reste inchangé
     tickets = Ticket.objects.filter(user=target_user).order_by('-created_at')
-    
-    # Récupérer les reviews créées par l'utilisateur cible
     reviews = Review.objects.filter(user=target_user).order_by('-created_at')
-    
-    # Combiner les tickets et les reviews dans une seule liste
     feed_items = list(chain(tickets, reviews))
-    
-    # Trier la liste par date de création (du plus récent au plus ancien)
     feed_items.sort(key=lambda item: item.created_at, reverse=True)
-    
-    # Paginer les résultats (10 par page)
     paginator = Paginator(feed_items, 10)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
@@ -102,6 +100,7 @@ def user_flux(request, user_id):
         'is_paginated': paginator.num_pages > 1,
         'paginator': paginator,
         'target_user': target_user,
+        'is_followed': is_followed,
     })
 
 @login_required
@@ -116,6 +115,32 @@ def ticket_flux(request, ticket_id):
         'ticket': ticket,
         'reviews': reviews,
     })
+
+@login_required
+def toggle_follow(request, user_id):
+    """Basculer entre s'abonner et se désabonner d'un utilisateur."""
+    User = get_user_model()
+    target_user = get_object_or_404(User, id=user_id)
+    
+    # Empêcher de s'abonner à soi-même
+    if target_user == request.user:
+        return redirect('user_flux', user_id=user_id)
+    
+    # Vérifier si l'utilisateur est déjà suivi
+    existing_follow = UserFollows.objects.filter(
+        user=request.user, 
+        followed_user=target_user
+    ).first()
+    
+    if existing_follow:
+        # Se désabonner
+        existing_follow.delete()
+    else:
+        # S'abonner
+        UserFollows.objects.create(user=request.user, followed_user=target_user)
+    
+    # Rediriger vers la page de flux de l'utilisateur
+    return redirect('user_flux', user_id=user_id)
 
 def post(request):
     tickets = Ticket.objects.filter(user=request.user)

@@ -3,7 +3,34 @@
 {% load user_stats %}
 
 {% block content %}
-<h2>Publications de {{ target_user.username }}</h2>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2>Publications de {{ target_user.username }}</h2>
+    
+    <!-- Bouton Abonnement/Désabonnement si l'utilisateur n'est pas sur son propre profil -->
+    {% if target_user != request.user %}
+        <div>
+            <a href="{% url 'toggle_follow' user_id=target_user.id %}" style="
+                padding: 8px 15px; 
+                border-radius: 4px; 
+                text-decoration: none;
+                font-weight: bold;
+                {% if is_followed %}
+                    background-color: #f44336;
+                    color: white;
+                {% else %}
+                    background-color: #2196F3;
+                    color: white;
+                {% endif %}
+            ">
+                {% if is_followed %}
+                    Se désabonner
+                {% else %}
+                    S'abonner
+                {% endif %}
+            </a>
+        </div>
+    {% endif %}
+</div>
 
 <!-- Statistiques utilisateur -->
 <div class="user-stats" style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; flex-wrap: wrap;">
