@@ -108,6 +108,7 @@ def abonnement(request):
 def search_users(request):
     query = request.GET.get('q', '')
     User = get_user_model()
+    # Ensure the query filters correctly and excludes the current user
     users = User.objects.filter(username__icontains=query).exclude(id=request.user.id)
     followed_users = request.user.following.values_list('followed_user_id', flat=True)
     results = [
@@ -119,11 +120,13 @@ def search_users(request):
         for user in users
     ]
     
-    # Ajout d'un message par défaut si aucun résultat n'est trouvé
+    # Handle cases where no users are found or the query is empty
     if not results and query:
         results = [{'id': -1, 'username': 'Aucun utilisateur trouvé', 'is_followed': False}]
-    elif not results:
-        results = [{'id': -1, 'username': 'Commencez à taper pour rechercher', 'is_followed': False}]
+    # Removed the default message for empty query to avoid confusion, 
+    # the frontend placeholder is sufficient.
+    # elif not results:
+    #     results = [{'id': -1, 'username': 'Commencez à taper pour rechercher', 'is_followed': False}]
         
     return JsonResponse(results, safe=False)
 
@@ -169,7 +172,7 @@ def add_review(request):
 
 def search_tickets(request):
     query = request.GET.get('q', '')
-    # Retirer la restriction user=request.user pour permettre de rechercher tous les tickets
+    # Correction de la syntaxe du filtre icontains
     tickets = Ticket.objects.filter(title__icontains=query)
     results = [
         {
@@ -188,3 +191,48 @@ def search_tickets(request):
         results = [{'id': -1, 'title': 'Commencez à taper pour rechercher', 'description': '', 'user': ''}]
         
     return JsonResponse(results, safe=False)
+
+@login_required
+def edit_review(request, review_id):
+    review = get_object_or_404(Review, id=review_id, user=request.user)
+    
+    if request.method == 'POST':
+        headline = request.POST.get('headline')
+        body = request.POST.get('body')
+        rating = request.POST.get('rating')
+        
+        if headline and body and rating:
+            review.headline = headline
+            review.body = body
+            review.rating = rating
+            review.save()
+            return redirect('flux')
+    
+    return render(request, 'app/edit_review.html', {'review': review})
+
+@login_required
+def create_review_for_ticket(request, ticket_id):
+    ticket = get_object_or_404(Ticket, id=ticket_id)
+    
+    # Vérifier si l'utilisateur a déjà créé une critique pour ce ticket
+    existing_review = Review.objects.filter(user=request.user, ticket=ticket).first()
+    if (existing_review):
+        # Rediriger vers l'édition de la critique existante
+        return redirect('edit_review', review_id=existing_review.id)
+    
+    if request.method == 'POST':
+        headline = request.POST.get('headline')
+        body = request.POST.get('body')
+        rating = request.POST.get('rating')
+        
+        if headline and body and rating:
+            Review.objects.create(
+                ticket=ticket,
+                user=request.user,
+                headline=headline,
+                body=body,
+                rating=rating
+            )
+            return redirect('flux')
+    
+    return render(request, 'app/create_review.html', {'ticket': ticket})

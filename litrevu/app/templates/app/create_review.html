@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Créer une Critique</h2>
+
+<div style="max-width: 800px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
+    <div style="margin-bottom: 20px; padding: 15px; background-color: #f9f9f9; border-radius: 5px;">
+        <h3>Ticket</h3>
+        <h4>{{ ticket.title }}</h4>
+        <p><small>Par {{ ticket.user.username }} - {{ ticket.created_at|date:"d/m/Y H:i" }}</small></p>
+        {% if ticket.description %}
+            <p>{{ ticket.description }}</p>
+        {% endif %}
+        {% if ticket.image %}
+            <img src="{{ ticket.image.url }}" alt="Image du ticket" style="max-width: 300px;">
+        {% endif %}
+    </div>
+    
+    <form method="post" action="">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 15px;">
+            <label for="headline" style="display: block; margin-bottom: 5px; font-weight: bold;">Titre de la critique :</label>
+            <input type="text" id="headline" name="headline" required style="width: 100%; padding: 8px; box-sizing: border-box;">
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label for="body" style="display: block; margin-bottom: 5px; font-weight: bold;">Contenu :</label>
+            <textarea id="body" name="body" required style="width: 100%; min-height: 150px; padding: 8px; box-sizing: border-box;"></textarea>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Note :</label>
+            <div id="star-rating" style="display: flex; gap: 5px;">
+                {% for i in "12345"|make_list %}
+                    <span class="star" data-value="{{ i }}" style="font-size: 24px; cursor: pointer;">☆</span>
+                {% endfor %}
+            </div>
+            <input type="hidden" id="review-rating" name="rating" required>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between;">
+            <button type="submit" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">Publier la critique</button>
+            <a href="{% url 'flux' %}" style="padding: 10px 20px; background-color: #f44336; color: white; text-decoration: none; border-radius: 4px;">Annuler</a>
+        </div>
+    </form>
+</div>
+
+<script>
+document.querySelectorAll('.star').forEach(star => {
+    star.addEventListener('click', function() {
+        const rating = this.getAttribute('data-value');
+        document.getElementById('review-rating').value = rating;
+        document.querySelectorAll('.star').forEach(s => {
+            s.textContent = s.getAttribute('data-value') <= rating ? '★' : '☆';
+        });
+    });
+});
+</script>
+{% endblock %}
