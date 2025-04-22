@@ -1,8 +1,30 @@
 {% extends 'base.html' %}
 {% load app_filters %}
+{% load user_stats %}
 
 {% block content %}
 <h2>Publications de {{ target_user.username }}</h2>
+
+<!-- Statistiques utilisateur -->
+<div class="user-stats" style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; flex-wrap: wrap;">
+    <div class="stat-item" style="margin: 5px 15px; text-align: center;">
+        <span style="font-size: 18px; font-weight: bold; color: #0066cc; display: block;">{% user_tickets_count target_user %}</span>
+        <span style="color: #666; font-size: 12px;">Tickets créés</span>
+    </div>
+    <div class="stat-item" style="margin: 5px 15px; text-align: center;">
+        <span style="font-size: 18px; font-weight: bold; color: #0066cc; display: block;">{% user_reviews_count target_user %}</span>
+        <span style="color: #666; font-size: 12px;">Critiques publiées</span>
+    </div>
+    <div class="stat-item" style="margin: 5px 15px; text-align: center;">
+        <span style="font-size: 18px; font-weight: bold; color: #0066cc; display: block;">{% user_average_rating target_user %}</span>
+        <span style="color: #666; font-size: 12px;">Note moyenne donnée</span>
+    </div>
+    <div class="stat-item" style="margin: 5px 15px; text-align: center;">
+        {% user_last_activity target_user as last_activity %}
+        <span style="font-size: 18px; font-weight: bold; color: #0066cc; display: block;">{{ last_activity|time_since }}</span>
+        <span style="color: #666; font-size: 12px;">Dernière activité</span>
+    </div>
+</div>
 
 {% if not page_obj %}
     <p>Aucun contenu à afficher pour cet utilisateur.</p>
