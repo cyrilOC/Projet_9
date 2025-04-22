@@ -74,6 +74,36 @@ def flux(request):
         'paginator': paginator,
     })
 
+@login_required
+def user_flux(request, user_id):
+    """Affiche le flux propre à un utilisateur spécifique (ses tickets et reviews)"""
+    User = get_user_model()
+    target_user = get_object_or_404(User, id=user_id)
+    
+    # Récupérer les tickets créés par l'utilisateur cible
+    tickets = Ticket.objects.filter(user=target_user).order_by('-created_at')
+    
+    # Récupérer les reviews créées par l'utilisateur cible
+    reviews = Review.objects.filter(user=target_user).order_by('-created_at')
+    
+    # Combiner les tickets et les reviews dans une seule liste
+    feed_items = list(chain(tickets, reviews))
+    
+    # Trier la liste par date de création (du plus récent au plus ancien)
+    feed_items.sort(key=lambda item: item.created_at, reverse=True)
+    
+    # Paginer les résultats (10 par page)
+    paginator = Paginator(feed_items, 10)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'app/user_flux.html', {
+        'page_obj': page_obj,
+        'is_paginated': paginator.num_pages > 1,
+        'paginator': paginator,
+        'target_user': target_user,
+    })
+
 def post(request):
     tickets = Ticket.objects.filter(user=request.user)
     message = None

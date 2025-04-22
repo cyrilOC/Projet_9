@@ -2,26 +2,24 @@
 {% load app_filters %}
 
 {% block content %}
-<h2>Flux</h2>
+<h2>Publications de {{ target_user.username }}</h2>
 
 {% if not page_obj %}
-    <p>Aucun contenu à afficher. Commencez par créer un ticket ou suivre d'autres utilisateurs.</p>
+    <p>Aucun contenu à afficher pour cet utilisateur.</p>
 {% else %}
     {% for item in page_obj %}
         <div class="feed-item" style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
             {% if item|class_name == 'Ticket' %}
                 <div class="ticket" style="background-color: #f9f9f9; padding: 10px; border-radius: 5px;">
                     <h3>{{ item.title }}</h3>
-                    <p><small>Par 
-                        <a href="{% url 'user_flux' user_id=item.user.id %}" style="color: #0066cc; text-decoration: none; font-weight: bold;">
-                            {{ item.user.username }}
-                        </a> - {{ item.created_at|date:"d/m/Y H:i" }}</small>
-                    </p>
+                    <p><small>Publié le {{ item.created_at|date:"d/m/Y H:i" }}</small></p>
                     
-                    <!-- Bouton pour créer une critique sur ce ticket -->
-                    <div style="float: right; margin-top: -30px;">
-                        <a href="{% url 'create_review_for_ticket' ticket_id=item.id %}" class="review-button" style="padding: 5px 10px; background-color: #2196F3; color: white; text-decoration: none; border-radius: 3px;">Faire une critique</a>
-                    </div>
+                    <!-- Bouton pour créer une critique sur ce ticket (uniquement si ce n'est pas déjà fait) -->
+                    {% if request.user != target_user %}
+                        <div style="float: right; margin-top: -30px;">
+                            <a href="{% url 'create_review_for_ticket' ticket_id=item.id %}" class="review-button" style="padding: 5px 10px; background-color: #2196F3; color: white; text-decoration: none; border-radius: 3px;">Faire une critique</a>
+                        </div>
+                    {% endif %}
                     
                     {% if item.description %}
                         <p>{{ item.description }}</p>
@@ -53,29 +51,11 @@
                             </p>
                         {% endwith %}
                     </div>
-                    
-                    {% if item.status %}
-                        <p><strong>Statut:</strong> {{ item.get_status_display }}</p>
-                    {% endif %}
-                    {% if item.priority %}
-                        <p><strong>Priorité:</strong> {{ item.get_priority_display }}</p>
-                    {% endif %}
                 </div>
             {% elif item|class_name == 'Review' %}
                 <div class="review" style="background-color: #f0f8ff; padding: 10px; border-radius: 5px;">
                     <h3>{{ item.headline }}</h3>
-                    <p><small>Par 
-                        <a href="{% url 'user_flux' user_id=item.user.id %}" style="color: #0066cc; text-decoration: none; font-weight: bold;">
-                            {{ item.user.username }}
-                        </a> - {{ item.created_at|date:"d/m/Y H:i" }}</small>
-                    </p>
-                    
-                    <!-- Bouton d'édition pour les critiques de l'utilisateur connecté -->
-                    {% if item.user == request.user %}
-                    <div style="float: right;">
-                        <a href="/edit_review/{{ item.id }}/" class="edit-button" style="padding: 5px 10px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 3px;">Éditer</a>
-                    </div>
-                    {% endif %}
+                    <p><small>Publié le {{ item.created_at|date:"d/m/Y H:i" }}</small></p>
                     
                     <div class="rating" style="margin-bottom: 10px;">
                         {% for i in "12345"|make_list %}
@@ -126,4 +106,8 @@
     </div>
     {% endif %}
 {% endif %}
+
+<div style="margin-top: 20px; text-align: center;">
+    <a href="{% url 'flux' %}" style="padding: 8px 16px; background-color: #555; color: white; text-decoration: none; border-radius: 4px;">Retour au flux principal</a>
+</div>
 {% endblock %}
