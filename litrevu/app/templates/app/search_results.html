@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load app_filters %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2>Résultats de recherche pour "{{ query }}"</h2>
+    
+    <!-- Barre de recherche pour faire une nouvelle recherche -->
+    <div class="search-box" style="width: 300px;">
+        <form action="{% url 'search_results' %}" method="GET" style="display: flex;">
+            <input type="text" name="q" value="{{ query }}" placeholder="Rechercher des tickets..." 
+                style="flex-grow: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px 0 0 4px;">
+            <button type="submit" style="padding: 8px 15px; background-color: #2196F3; color: white; border: none; border-radius: 0 4px 4px 0; cursor: pointer;">
+                Rechercher
+            </button>
+        </form>
+    </div>
+</div>
+
+{% if page_obj %}
+    <p>{{ page_obj.paginator.count }} résultat{{ page_obj.paginator.count|pluralize }} trouvé{{ page_obj.paginator.count|pluralize }}.</p>
+    
+    {% for ticket in page_obj %}
+        <div class="search-result" style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
+            <h3>
+                <a href="{% url 'ticket_flux' ticket_id=ticket.id %}" style="color: #2196F3; text-decoration: none;">
+                    {{ ticket.title }}
+                </a>
+            </h3>
+            <p><small>Par 
+                <a href="{% url 'user_flux' user_id=ticket.user.id %}" style="color: #0066cc; text-decoration: none; font-weight: bold;">
+                    {{ ticket.user.username }}
+                </a> - {{ ticket.created_at|date:"d/m/Y H:i" }}</small>
+            </p>
+            
+            {% if ticket.description %}
+                <p>{{ ticket.description|truncatewords:50 }}</p>
+            {% endif %}
+            
+            <!-- Statistiques du ticket -->
+            <div class="ticket-stats" style="margin-top: 10px; padding: 8px; background-color: #f0f0f0; border-radius: 4px;">
+                {% with reviews_count=ticket.get_reviews_count %}
+                    <p style="margin: 0;">
+                        <strong>Critiques:</strong> {{ reviews_count }}
+                        {% if reviews_count > 0 %}
+                            {% with avg_rating=ticket.get_average_rating %}
+                                <span style="margin-left: 15px;">
+                                    <strong>Note moyenne:</strong> 
+                                    {{ avg_rating }} / 5
+                                    <span style="color: gold; margin-left: 5px;">
+                                        {% for i in "12345"|make_list %}
+                                            {% if forloop.counter <= avg_rating|floatformat:0|add:"0" %}★{% else %}☆{% endif %}
+                                        {% endfor %}
+                                    </span>
+                                </span>
+                            {% endwith %}
+                        {% else %}
+                            <span style="margin-left: 15px;"><em>Aucune note pour l'instant</em></span>
+                        {% endif %}
+                    </p>
+                {% endwith %}
+            </div>
+            
+            <!-- Boutons d'action -->
+            <div style="margin-top: 15px;">
+                <a href="{% url 'create_review_for_ticket' ticket_id=ticket.id %}" 
+                    style="padding: 7px 12px; background-color: #2196F3; color: white; text-decoration: none; border-radius: 3px; margin-right: 10px;">
+                    Faire une critique
+                </a>
+                <a href="{% url 'ticket_flux' ticket_id=ticket.id %}" 
+                    style="padding: 7px 12px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 3px;">
+                    Voir les critiques
+                </a>
+            </div>
+        </div>
+    {% endfor %}
+    
+    {% if is_paginated %}
+        <div class="pagination" style="margin-top: 20px; text-align: center;">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?q={{ query }}&page=1">&laquo; première</a>
+                    <a href="?q={{ query }}&page={{ page_obj.previous_page_number }}">précédente</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}.
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?q={{ query }}&page={{ page_obj.next_page_number }}">suivante</a>
+                    <a href="?q={{ query }}&page={{ page_obj.paginator.num_pages }}">dernière &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    {% endif %}
+{% else %}
+    {% if query %}
+        <p style="text-align: center; padding: 30px; color: #666;">Aucun ticket ne correspond à votre recherche.</p>
+    {% else %}
+        <p style="text-align: center; padding: 30px; color: #666;">Veuillez entrer un terme de recherche.</p>
+    {% endif %}
+{% endif %}
+
+<div style="margin-top: 30px; text-align: center;">
+    <a href="{% url 'flux' %}" style="padding: 8px 16px; background-color: #555; color: white; text-decoration: none; border-radius: 4px;">Retour au flux principal</a>
+</div>
+{% endblock %}

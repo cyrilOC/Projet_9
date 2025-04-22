@@ -2,7 +2,20 @@
 {% load app_filters %}
 
 {% block content %}
-<h2>Flux</h2>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2>Flux</h2>
+    
+    <!-- Barre de recherche de tickets -->
+    <div class="search-box" style="width: 300px;">
+        <form action="{% url 'search_results' %}" method="GET" style="display: flex;">
+            <input type="text" name="q" placeholder="Rechercher des tickets..." 
+                style="flex-grow: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px 0 0 4px;">
+            <button type="submit" style="padding: 8px 15px; background-color: #2196F3; color: white; border: none; border-radius: 0 4px 4px 0; cursor: pointer;">
+                Rechercher
+            </button>
+        </form>
+    </div>
+</div>
 
 {% if not page_obj %}
     <p>Aucun contenu à afficher. Commencez par créer un ticket ou suivre d'autres utilisateurs.</p>

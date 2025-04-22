@@ -4,6 +4,7 @@ from .forms import TicketForm
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
+from django.db import models
 import json
 from .models import UserFollows
 from django.core.paginator import Paginator
@@ -141,6 +142,32 @@ def toggle_follow(request, user_id):
     
     # Rediriger vers la page de flux de l'utilisateur
     return redirect('user_flux', user_id=user_id)
+
+@login_required
+def search_results(request):
+    """Affiche les résultats de recherche de tickets basés sur un mot-clé."""
+    query = request.GET.get('q', '')
+    
+    if query:
+        # Rechercher dans les titres et descriptions des tickets
+        tickets = Ticket.objects.filter(
+            models.Q(title__icontains=query) | 
+            models.Q(description__icontains=query)
+        ).order_by('-created_at')
+    else:
+        tickets = Ticket.objects.none()
+    
+    # Paginer les résultats (10 par page)
+    paginator = Paginator(tickets, 10)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'app/search_results.html', {
+        'page_obj': page_obj,
+        'is_paginated': paginator.num_pages > 1,
+        'paginator': paginator,
+        'query': query,
+    })
 
 def post(request):
     tickets = Ticket.objects.filter(user=request.user)
