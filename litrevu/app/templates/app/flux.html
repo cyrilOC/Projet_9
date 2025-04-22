@@ -25,6 +25,31 @@
                     {% if item.image %}
                         <img src="{{ item.image.url }}" alt="Image du ticket" style="max-width: 300px;">
                     {% endif %}
+                    
+                    <!-- Affichage de la note moyenne et du nombre de critiques -->
+                    <div class="ticket-stats" style="margin-top: 10px; padding: 8px; background-color: #f0f0f0; border-radius: 4px;">
+                        {% with reviews_count=item.get_reviews_count %}
+                            <p style="margin: 0;">
+                                <strong>Critiques:</strong> {{ reviews_count }}
+                                {% if reviews_count > 0 %}
+                                    {% with avg_rating=item.get_average_rating %}
+                                        <span style="margin-left: 15px;">
+                                            <strong>Note moyenne:</strong> 
+                                            {{ avg_rating }} / 5
+                                            <span style="color: gold; margin-left: 5px;">
+                                                {% for i in "12345"|make_list %}
+                                                    {% if forloop.counter <= avg_rating|floatformat:0|add:"0" %}★{% else %}☆{% endif %}
+                                                {% endfor %}
+                                            </span>
+                                        </span>
+                                    {% endwith %}
+                                {% else %}
+                                    <span style="margin-left: 15px;"><em>Aucune note pour l'instant</em></span>
+                                {% endif %}
+                            </p>
+                        {% endwith %}
+                    </div>
+                    
                     {% if item.status %}
                         <p><strong>Statut:</strong> {{ item.get_status_display }}</p>
                     {% endif %}

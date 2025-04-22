@@ -17,6 +17,18 @@ class Ticket(models.Model):
     status = models.CharField(max_length=20, choices=[('open', 'Ouvert'), ('closed', 'Fermé')], default='open')
     priority = models.CharField(max_length=20, choices=[('low', 'Basse'), ('medium', 'Moyenne'), ('high', 'Haute')], default='medium')
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    def get_reviews_count(self):
+        """Renvoie le nombre total de critiques pour ce ticket."""
+        return self.review_set.count()
+    
+    def get_average_rating(self):
+        """Calcule et renvoie la note moyenne des critiques pour ce ticket."""
+        reviews = self.review_set.all()
+        if not reviews:
+            return None
+        total_rating = sum(review.rating for review in reviews)
+        return round(total_rating / len(reviews), 1)  # Arrondi à 1 décimale
 
 
 class Review(models.Model):
