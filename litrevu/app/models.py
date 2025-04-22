@@ -16,6 +16,7 @@ class Ticket(models.Model):
     time_created = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=[('open', 'Ouvert'), ('closed', 'Fermé')], default='open')
     priority = models.CharField(max_length=20, choices=[('low', 'Basse'), ('medium', 'Moyenne'), ('high', 'Haute')], default='medium')
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class Review(models.Model):
@@ -30,6 +31,7 @@ class Review(models.Model):
     time_created = models.DateTimeField(auto_now_add=True)
     is_approved = models.BooleanField(default=False)
     response = models.TextField(max_length=2048, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class UserFollows(models.Model):

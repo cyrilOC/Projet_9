@@ -21,26 +21,106 @@
     </div>
     <div style="width: 30%; border: 1px solid #ccc; padding: 10px;">
         <h3>Rechercher un utilisateur</h3>
-        <form method="get" action="">
-            <input type="text" name="search" id="search" placeholder="Rechercher..." oninput="searchUsers(this.value)">
-            <ul id="search-results"></ul>
-        </form>
+        <div class="search-container">
+            <input type="text" id="user-search-input" placeholder="Commencer à taper un nom..." oninput="searchUsers(this.value)">
+            <div id="search-results" class="search-results-dropdown"></div>
+        </div>
+        <div id="selected-user-info" style="margin-top: 20px; display: none;">
+            <h4>Utilisateur sélectionné:</h4>
+            <p id="selected-username"></p>
+            <button id="subscribe-button" onclick="subscribeUser(selectedUserId, true)">S'abonner</button>
+            <button id="unsubscribe-button" onclick="subscribeUser(selectedUserId, false)" style="display:none;">Se désabonner</button>
+        </div>
     </div>
 </div>
+
+<style>
+.search-container {
+    position: relative;
+    width: 100%;
+}
+
+#user-search-input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    margin-bottom: 5px;
+}
+
+.search-results-dropdown {
+    position: absolute;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: white;
+    border: 1px solid #ddd;
+    z-index: 1000;
+    display: none;
+}
+
+.search-result-item {
+    padding: 8px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.search-result-item:hover {
+    background-color: #f1f1f1;
+}
+</style>
+
 <script>
+let selectedUserId = null;
+let selectedUserData = null;
+
 function searchUsers(query) {
     fetch(`/search_users/?q=${query}`)
         .then(response => response.json())
         .then(data => {
-            const results = document.getElementById('search-results');
-            results.innerHTML = '';
-            data.forEach(user => {
-                const isChecked = user.is_followed ? 'checked' : '';
-                const li = document.createElement('li');
-                li.innerHTML = `${user.username} <input type='checkbox' ${isChecked} onchange='subscribeUser(${user.id}, this.checked)'>`;
-                results.appendChild(li);
-            });
+            const resultsContainer = document.getElementById('search-results');
+            resultsContainer.innerHTML = '';
+            
+            if (data.length > 0) {
+                data.forEach(user => {
+                    if (user.id !== -1) { // Ne pas afficher les messages par défaut comme résultats cliquables
+                        const item = document.createElement('div');
+                        item.className = 'search-result-item';
+                        item.textContent = user.username;
+                        item.onclick = function() { selectUser(user); };
+                        resultsContainer.appendChild(item);
+                    } else {
+                        // Afficher juste un message
+                        const item = document.createElement('div');
+                        item.className = 'search-result-item';
+                        item.textContent = user.username;
+                        resultsContainer.appendChild(item);
+                    }
+                });
+                resultsContainer.style.display = 'block';
+            } else {
+                resultsContainer.style.display = 'none';
+            }
         });
+}
+
+function selectUser(user) {
+    selectedUserId = user.id;
+    selectedUserData = user;
+    document.getElementById('user-search-input').value = user.username;
+    document.getElementById('search-results').style.display = 'none';
+    
+    // Afficher les informations de l'utilisateur sélectionné
+    document.getElementById('selected-username').textContent = user.username;
+    document.getElementById('selected-user-info').style.display = 'block';
+    
+    // Afficher le bouton approprié
+    if (user.is_followed) {
+        document.getElementById('subscribe-button').style.display = 'none';
+        document.getElementById('unsubscribe-button').style.display = 'block';
+    } else {
+        document.getElementById('subscribe-button').style.display = 'block';
+        document.getElementById('unsubscribe-button').style.display = 'none';
+    }
 }
 
 function subscribeUser(userId, subscribe) {
@@ -53,7 +133,8 @@ function subscribeUser(userId, subscribe) {
         body: JSON.stringify({ user_id: userId, subscribe: subscribe })
     }).then(response => {
         if (response.ok) {
-            refreshSections();
+            // Rafraîchir la page complète après l'abonnement/désabonnement
+            window.location.reload();
         } else {
             alert('Une erreur est survenue.');
         }
@@ -61,18 +142,30 @@ function subscribeUser(userId, subscribe) {
 }
 
 function refreshSections() {
-    fetch(`/abonnement/refresh/`)
-        .then(response => response.json())
-        .then(data => {
-            const followersSection = document.getElementById('followers-section');
-            const followingSection = document.getElementById('following-section');
-
-            followersSection.innerHTML = '<h3>Abonnés</h3><ul>' +
-                data.followers.map(follower => `<li>${follower.username}</li>`).join('') + '</ul>';
-
-            followingSection.innerHTML = '<h3>Abonné à</h3><ul>' +
-                data.following.map(following => `<li>${following.username}</li>`).join('') + '</ul>';
-        });
+    // ...existing code...
 }
+
+// Cliquer en dehors du menu déroulant le ferme
+document.addEventListener('click', function(event) {
+    const searchResults = document.getElementById('search-results');
+    const searchInput = document.getElementById('user-search-input');
+    
+    if (event.target !== searchResults && event.target !== searchInput && !searchResults.contains(event.target)) {
+        searchResults.style.display = 'none';
+    }
+});
+
+// Afficher les résultats quand l'input reçoit le focus
+document.getElementById('user-search-input').addEventListener('focus', function() {
+    const searchResults = document.getElementById('search-results');
+    if (searchResults.children.length > 0) {
+        searchResults.style.display = 'block';
+    }
+});
+
+// Charger des résultats par défaut au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+    searchUsers('');
+});
 </script>
 {% endblock %}

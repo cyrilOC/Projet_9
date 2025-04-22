@@ -6,6 +6,9 @@ from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import UserFollows
+from django.core.paginator import Paginator
+from itertools import chain
+from django.contrib.auth.decorators import login_required
 
 def home(request):
     return render(request, 'app/home.html')
@@ -37,8 +40,39 @@ def edit_ticket(request, ticket_id):
         form = TicketForm(instance=ticket)
     return render(request, 'app/edit_ticket.html', {'form': form, 'ticket': ticket})
 
+@login_required
 def flux(request):
-    return render(request, 'app/flux.html')
+    # Récupérer l'utilisateur connecté
+    user = request.user
+    
+    # Récupérer la liste des utilisateurs suivis
+    followed_users = [relation.followed_user for relation in user.following.all()]
+    
+    # Inclure l'utilisateur actuel dans la liste pour voir également ses propres posts
+    users_to_display = [user] + followed_users
+    
+    # Récupérer les tickets créés par l'utilisateur et les utilisateurs suivis
+    tickets = Ticket.objects.filter(user__in=users_to_display).order_by('-created_at')
+    
+    # Récupérer les reviews créées par l'utilisateur et les utilisateurs suivis
+    reviews = Review.objects.filter(user__in=users_to_display).order_by('-created_at')
+    
+    # Combiner les tickets et les reviews dans une seule liste
+    feed_items = list(chain(tickets, reviews))
+    
+    # Trier la liste par date de création (du plus récent au plus ancien)
+    feed_items.sort(key=lambda item: item.created_at, reverse=True)
+    
+    # Paginer les résultats (10 par page)
+    paginator = Paginator(feed_items, 10)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'app/flux.html', {
+        'page_obj': page_obj,
+        'is_paginated': paginator.num_pages > 1,
+        'paginator': paginator,
+    })
 
 def post(request):
     tickets = Ticket.objects.filter(user=request.user)
@@ -84,6 +118,13 @@ def search_users(request):
         }
         for user in users
     ]
+    
+    # Ajout d'un message par défaut si aucun résultat n'est trouvé
+    if not results and query:
+        results = [{'id': -1, 'username': 'Aucun utilisateur trouvé', 'is_followed': False}]
+    elif not results:
+        results = [{'id': -1, 'username': 'Commencez à taper pour rechercher', 'is_followed': False}]
+        
     return JsonResponse(results, safe=False)
 
 @csrf_exempt
@@ -128,6 +169,22 @@ def add_review(request):
 
 def search_tickets(request):
     query = request.GET.get('q', '')
-    tickets = Ticket.objects.filter(title__icontains=query, user=request.user)
-    results = [{'id': ticket.id, 'title': ticket.title} for ticket in tickets]
+    # Retirer la restriction user=request.user pour permettre de rechercher tous les tickets
+    tickets = Ticket.objects.filter(title__icontains=query)
+    results = [
+        {
+            'id': ticket.id, 
+            'title': ticket.title,
+            'description': ticket.description,
+            'user': ticket.user.username
+        } 
+        for ticket in tickets
+    ]
+    
+    # Retourner un message par défaut si aucun ticket n'est trouvé
+    if not results and query:
+        results = [{'id': -1, 'title': 'Aucun ticket trouvé', 'description': '', 'user': ''}]
+    elif not results:
+        results = [{'id': -1, 'title': 'Commencez à taper pour rechercher', 'description': '', 'user': ''}]
+        
     return JsonResponse(results, safe=False)

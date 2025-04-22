@@ -1,6 +1,78 @@
 {% extends 'base.html' %}
+{% load app_filters %}
 
 {% block content %}
 <h2>Flux</h2>
-<p>Bienvenue sur la page Flux.</p>
+
+{% if not page_obj %}
+    <p>Aucun contenu à afficher. Commencez par créer un ticket ou suivre d'autres utilisateurs.</p>
+{% else %}
+    {% for item in page_obj %}
+        <div class="feed-item" style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
+            {% if item|class_name == 'Ticket' %}
+                <div class="ticket" style="background-color: #f9f9f9; padding: 10px; border-radius: 5px;">
+                    <h3>{{ item.title }}</h3>
+                    <p><small>Par {{ item.user.username }} - {{ item.created_at|date:"d/m/Y H:i" }}</small></p>
+                    {% if item.description %}
+                        <p>{{ item.description }}</p>
+                    {% endif %}
+                    {% if item.image %}
+                        <img src="{{ item.image.url }}" alt="Image du ticket" style="max-width: 300px;">
+                    {% endif %}
+                    {% if item.status %}
+                        <p><strong>Statut:</strong> {{ item.get_status_display }}</p>
+                    {% endif %}
+                    {% if item.priority %}
+                        <p><strong>Priorité:</strong> {{ item.get_priority_display }}</p>
+                    {% endif %}
+                </div>
+            {% elif item|class_name == 'Review' %}
+                <div class="review" style="background-color: #f0f8ff; padding: 10px; border-radius: 5px;">
+                    <h3>{{ item.headline }}</h3>
+                    <p><small>Par {{ item.user.username }} - {{ item.created_at|date:"d/m/Y H:i" }}</small></p>
+                    <div class="rating" style="margin-bottom: 10px;">
+                        {% for i in "12345"|make_list %}
+                            {% if forloop.counter <= item.rating %}
+                                <span style="color: gold;">★</span>
+                            {% else %}
+                                <span style="color: #ccc;">★</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% if item.body %}
+                        <p>{{ item.body }}</p>
+                    {% endif %}
+                    
+                    <div class="ticket-reference" style="margin-top: 15px; border-top: 1px solid #ddd; padding-top: 10px;">
+                        <h4>En réponse à: {{ item.ticket.title }}</h4>
+                        <p><small>Ticket de {{ item.ticket.user.username }}</small></p>
+                        {% if item.ticket.description %}
+                            <p>{{ item.ticket.description|truncatewords:20 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    
+    {% if is_paginated %}
+    <div class="pagination" style="margin-top: 20px; text-align: center;">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; première</a>
+                <a href="?page={{ page_obj.previous_page_number }}">précédente</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">suivante</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">dernière &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+    {% endif %}
+{% endif %}
 {% endblock %}

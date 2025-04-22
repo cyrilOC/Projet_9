@@ -25,12 +25,17 @@
         <h3>Créer une Critique</h3>
         <form method="post" action="">
             {% csrf_token %}
-            <label for="review-ticket">Rechercher un ticket :</label>
-            <input type="text" id="review-ticket" name="ticket_search" placeholder="Rechercher un ticket..." oninput="searchTickets(this.value)" required>
-            <br>
-            <br>
-            <ul id="ticket-results"></ul>
-            <div id="selected-ticket"></div>
+            <div class="search-container">
+                <label for="ticket-search-input">Rechercher un ticket :</label>
+                <input type="text" id="ticket-search-input" placeholder="Commencer à taper un titre..." oninput="searchTickets(this.value)">
+                <div id="ticket-results" class="search-results-dropdown"></div>
+                <input type="hidden" id="selected-ticket-id" name="selected_ticket">
+            </div>
+            <div id="selected-ticket-info" style="margin: 15px 0; padding: 10px; border: 1px solid #eee; display: none;">
+                <h4 id="selected-ticket-title"></h4>
+                <p id="selected-ticket-description" style="font-size: 0.9em; color: #666;"></p>
+            </div>
+
             <label for="review-headline">Titre de la critique :</label>
             <input type="text" id="review-headline" name="headline" required>
             <br><br>
@@ -50,26 +55,125 @@
         </form>
     </div>
 </div>
+
+<style>
+.search-container {
+    position: relative;
+    width: 100%;
+}
+
+#ticket-search-input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    margin-bottom: 5px;
+}
+
+.search-results-dropdown {
+    position: absolute;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: white;
+    border: 1px solid #ddd;
+    z-index: 1000;
+    display: none;
+}
+
+.search-result-item {
+    padding: 8px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.search-result-item:hover {
+    background-color: #f1f1f1;
+}
+</style>
+
 <script>
+let selectedTicketData = null;
+
 function searchTickets(query) {
     fetch(`/search_tickets/?q=${query}`)
         .then(response => response.json())
         .then(data => {
-            const results = document.getElementById('ticket-results');
-            results.innerHTML = '';
-            data.forEach(ticket => {
-                const li = document.createElement('li');
-                li.innerHTML = `${ticket.title} <input type='radio' name='selected_ticket' value='${ticket.id}' onchange='selectTicket(${ticket.id})'>`;
-                results.appendChild(li);
-            });
+            const resultsContainer = document.getElementById('ticket-results');
+            resultsContainer.innerHTML = '';
+            
+            if (data.length > 0) {
+                data.forEach(ticket => {
+                    const item = document.createElement('div');
+                    item.className = 'search-result-item';
+                    item.textContent = ticket.title;
+                    item.onclick = function() { selectTicket(ticket); };
+                    resultsContainer.appendChild(item);
+                });
+                resultsContainer.style.display = 'block';
+            } else {
+                const item = document.createElement('div');
+                item.className = 'search-result-item';
+                item.textContent = query ? 'Aucun ticket trouvé' : 'Commencez à taper pour rechercher';
+                resultsContainer.appendChild(item);
+                resultsContainer.style.display = 'block';
+            }
         });
 }
 
-function selectTicket(ticketId) {
-    const selectedTicket = document.getElementById('selected-ticket');
-    selectedTicket.innerHTML = `<input type='hidden' name='selected_ticket' value='${ticketId}'>`;
+function selectTicket(ticket) {
+    selectedTicketData = ticket;
+    document.getElementById('ticket-search-input').value = ticket.title;
+    document.getElementById('selected-ticket-id').value = ticket.id;
+    document.getElementById('ticket-results').style.display = 'none';
+    
+    // Afficher les informations du ticket sélectionné
+    document.getElementById('selected-ticket-title').textContent = ticket.title;
+    if(ticket.description) {
+        document.getElementById('selected-ticket-description').textContent = ticket.description;
+    } else {
+        document.getElementById('selected-ticket-description').textContent = 'Pas de description disponible';
+    }
+    
+    // Ajouter l'information sur l'auteur du ticket
+    const authorInfo = document.createElement('p');
+    authorInfo.textContent = `Créé par: ${ticket.user}`;
+    authorInfo.style.fontStyle = 'italic';
+    authorInfo.style.marginTop = '5px';
+    
+    const ticketInfo = document.getElementById('selected-ticket-info');
+    // Supprimer l'ancien auteur s'il existe déjà
+    const existingAuthor = ticketInfo.querySelector('.ticket-author');
+    if (existingAuthor) {
+        existingAuthor.remove();
+    }
+    
+    authorInfo.className = 'ticket-author';
+    ticketInfo.appendChild(authorInfo);
+    
+    document.getElementById('selected-ticket-info').style.display = 'block';
 }
 
+// Cliquer en dehors du menu déroulant le ferme
+document.addEventListener('click', function(event) {
+    const resultsContainer = document.getElementById('ticket-results');
+    const searchInput = document.getElementById('ticket-search-input');
+    
+    if (event.target !== resultsContainer && event.target !== searchInput && !resultsContainer.contains(event.target)) {
+        resultsContainer.style.display = 'none';
+    }
+});
+
+// Afficher les résultats quand l'input reçoit le focus
+document.getElementById('ticket-search-input').addEventListener('focus', function() {
+    const resultsContainer = document.getElementById('ticket-results');
+    if (resultsContainer.children.length > 0) {
+        resultsContainer.style.display = 'block';
+    } else {
+        searchTickets('');
+    }
+});
+
+// Étoiles de notation
 document.querySelectorAll('.star').forEach(star => {
     star.addEventListener('click', function() {
         const rating = this.getAttribute('data-value');
@@ -78,6 +182,11 @@ document.querySelectorAll('.star').forEach(star => {
             s.textContent = s.getAttribute('data-value') <= rating ? '★' : '☆';
         });
     });
+});
+
+// Charger des résultats par défaut au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+    searchTickets('');
 });
 </script>
 {% endblock %}

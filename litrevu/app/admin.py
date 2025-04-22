@@ -1,8 +1,13 @@
 from django.contrib import admin
 from .models import Ticket, Review, UserFollows
 
-admin.site.register(Ticket)
-admin.site.register(Review)
+@admin.register(Ticket)
+class TicketAdmin(admin.ModelAdmin):
+    list_display = ('title', 'user', 'created_at')
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('headline', 'ticket', 'user', 'created_at')
 
 @admin.register(UserFollows)
 class UserFollowsAdmin(admin.ModelAdmin):
