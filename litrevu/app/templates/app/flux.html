@@ -11,7 +11,11 @@
         <div class="feed-item" style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
             {% if item|class_name == 'Ticket' %}
                 <div class="ticket" style="background-color: #f9f9f9; padding: 10px; border-radius: 5px;">
-                    <h3>{{ item.title }}</h3>
+                    <h3>
+                        <a href="{% url 'ticket_flux' ticket_id=item.id %}" style="color: #2196F3; text-decoration: none;">
+                            {{ item.title }}
+                        </a>
+                    </h3>
                     <p><small>Par 
                         <a href="{% url 'user_flux' user_id=item.user.id %}" style="color: #0066cc; text-decoration: none; font-weight: bold;">
                             {{ item.user.username }}
@@ -91,7 +95,11 @@
                     {% endif %}
                     
                     <div class="ticket-reference" style="margin-top: 15px; border-top: 1px solid #ddd; padding-top: 10px;">
-                        <h4>En réponse à: {{ item.ticket.title }}</h4>
+                        <h4>En réponse à: 
+                            <a href="{% url 'ticket_flux' ticket_id=item.ticket.id %}" style="color: #2196F3; text-decoration: none;">
+                                {{ item.ticket.title }}
+                            </a>
+                        </h4>
                         <p><small>Ticket de 
                             <a href="{% url 'user_flux' user_id=item.ticket.user.id %}" style="color: #0066cc; text-decoration: none;">
                                 {{ item.ticket.user.username }}

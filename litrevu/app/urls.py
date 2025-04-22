@@ -7,6 +7,7 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('flux/', views.flux, name='flux'),
     path('user/<int:user_id>/flux/', views.user_flux, name='user_flux'),
+    path('ticket/<int:ticket_id>/flux/', views.ticket_flux, name='ticket_flux'),
     path('post/', views.post, name='post'),
     path('abonnement/', views.abonnement, name='abonnement'),
     

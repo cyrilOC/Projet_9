@@ -104,6 +104,19 @@ def user_flux(request, user_id):
         'target_user': target_user,
     })
 
+@login_required
+def ticket_flux(request, ticket_id):
+    """Affiche un ticket spécifique avec toutes ses critiques en ordre chronologique"""
+    ticket = get_object_or_404(Ticket, id=ticket_id)
+    
+    # Récupérer toutes les critiques liées à ce ticket, triées par date de création (du plus ancien au plus récent)
+    reviews = Review.objects.filter(ticket=ticket).order_by('created_at')
+    
+    return render(request, 'app/ticket_flux.html', {
+        'ticket': ticket,
+        'reviews': reviews,
+    })
+
 def post(request):
     tickets = Ticket.objects.filter(user=request.user)
     message = None

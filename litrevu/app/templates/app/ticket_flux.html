@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load app_filters %}
+
+{% block content %}
+<h2>Détails du ticket</h2>
+
+<div class="ticket-container" style="max-width: 800px; margin: 0 auto;">
+    <!-- Affichage du ticket principal -->
+    <div class="ticket" style="margin-bottom: 30px; padding: 20px; border: 2px solid #2196F3; border-radius: 8px; background-color: #f9f9f9;">
+        <h2>{{ ticket.title }}</h2>
+        <p><small>Par 
+            <a href="{% url 'user_flux' user_id=ticket.user.id %}" style="color: #0066cc; text-decoration: none; font-weight: bold;">
+                {{ ticket.user.username }}
+            </a> - {{ ticket.created_at|date:"d/m/Y H:i" }}</small>
+        </p>
+        
+        {% if ticket.description %}
+            <div style="margin: 15px 0;">{{ ticket.description }}</div>
+        {% endif %}
+        
+        {% if ticket.image %}
+            <img src="{{ ticket.image.url }}" alt="Image du ticket" style="max-width: 100%; margin-top: 15px;">
+        {% endif %}
+        
+        <!-- Statistiques du ticket -->
+        <div class="ticket-stats" style="margin-top: 20px; padding: 10px; background-color: #e8f4f8; border-radius: 6px;">
+            <h4 style="margin-top: 0;">Statistiques</h4>
+            {% with reviews_count=ticket.get_reviews_count %}
+                <p>
+                    <strong>Nombre de critiques:</strong> {{ reviews_count }}
+                    {% if reviews_count > 0 %}
+                        {% with avg_rating=ticket.get_average_rating %}
+                            <br>
+                            <strong>Note moyenne:</strong> 
+                            {{ avg_rating }} / 5
+                            <span style="color: gold; margin-left: 5px;">
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= avg_rating|floatformat:0|add:"0" %}★{% else %}☆{% endif %}
+                                {% endfor %}
+                            </span>
+                        {% endwith %}
+                    {% else %}
+                        <br><em>Aucune critique pour l'instant</em>
+                    {% endif %}
+                </p>
+            {% endwith %}
+        </div>
+        
+        <!-- Bouton pour créer une critique sur ce ticket -->
+        <div style="margin-top: 20px;">
+            <a href="{% url 'create_review_for_ticket' ticket_id=ticket.id %}" style="padding: 10px 15px; background-color: #2196F3; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">
+                Faire une critique
+            </a>
+        </div>
+    </div>
+
+    <!-- Affichage des critiques -->
+    <h3 style="margin-top: 30px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
+        Critiques ({{ reviews|length }})
+    </h3>
+
+    {% if reviews %}
+        {% for review in reviews %}
+            <div class="review" style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; background-color: #f0f8ff;">
+                <h4>{{ review.headline }}</h4>
+                <p><small>Par 
+                    <a href="{% url 'user_flux' user_id=review.user.id %}" style="color: #0066cc; text-decoration: none;">
+                        {{ review.user.username }}
+                    </a> - {{ review.created_at|date:"d/m/Y H:i" }}</small>
+                </p>
+                
+                {% if review.user == request.user %}
+                    <div style="float: right; margin-top: -30px;">
+                        <a href="{% url 'edit_review' review_id=review.id %}" class="edit-button" style="padding: 5px 10px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 3px;">Éditer</a>
+                    </div>
+                {% endif %}
+                
+                <div class="rating" style="margin-bottom: 10px;">
+                    {% for i in "12345"|make_list %}
+                        {% if forloop.counter <= review.rating %}
+                            <span style="color: gold;">★</span>
+                        {% else %}
+                            <span style="color: #ccc;">★</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                
+                {% if review.body %}
+                    <p>{{ review.body }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p style="text-align: center; color: #666; margin-top: 20px;">
+            Aucune critique n'a été publiée pour ce ticket. Soyez le premier à donner votre avis !
+        </p>
+    {% endif %}
+
+    <div style="margin: 30px 0; text-align: center;">
+        <a href="{% url 'flux' %}" style="padding: 8px 16px; background-color: #555; color: white; text-decoration: none; border-radius: 4px;">Retour au flux principal</a>
+    </div>
+</div>
+{% endblock %}
