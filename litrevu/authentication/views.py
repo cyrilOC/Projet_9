@@ -1,8 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from .forms import SignUpForm
-
+from .forms import SignUpForm, ProfileUpdateForm
 
 def logout_user(request):
     logout(request)
@@ -23,5 +22,11 @@ def signup(request):
 
 @login_required
 def profile(request):
-    # Vue de profil simple pour l'instant
-    return render(request, 'authentication/profile.html')
+    if request.method == 'POST':
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')
+    else:
+        form = ProfileUpdateForm(instance=request.user)
+    return render(request, 'authentication/profile.html', {'form': form})

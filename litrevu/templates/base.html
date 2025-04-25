@@ -1,25 +1,94 @@
 <html>
     <head>
         <title>LitRevu</title>
+        <style>
+            .profile-badge {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                display: flex;
+                align-items: center;
+                cursor: pointer;
+            }
+            .profile-badge img {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+            .profile-badge-initial {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background-color: #2196F3;
+                color: white;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-weight: bold;
+                font-size: 18px;
+            }
+            .dropdown {
+                position: absolute;
+                top: 60px;
+                right: 10px;
+                background-color: white;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                display: none;
+                z-index: 1000;
+            }
+            .dropdown a {
+                display: block;
+                padding: 10px;
+                text-decoration: none;
+                color: black;
+                text-align: center;
+            }
+            .dropdown a:hover {
+                background-color: #f1f1f1;
+            }
+        </style>
+        <script>
+            function toggleDropdown() {
+                const dropdown = document.getElementById('profile-dropdown');
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            }
+            document.addEventListener('click', function(event) {
+                const dropdown = document.getElementById('profile-dropdown');
+                const badge = document.getElementById('profile-badge');
+                if (!badge.contains(event.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        </script>
     </head>
     <body>
         <h1 style="text-align: center;">LitRevu</h1>
         {% if user.is_authenticated %}
+            <div id="profile-badge" class="profile-badge" onclick="toggleDropdown()">
+                {% if user.profile_picture %}
+                    <img src="{{ user.profile_picture.url }}" alt="Profile Picture">
+                {% else %}
+                    <div class="profile-badge-initial">{{ user.username|slice:":1"|upper }}</div>
+                {% endif %}
+            </div>
+            <div id="profile-dropdown" class="dropdown">
+                <a href="{% url 'profile' %}">Profil</a>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" style="background: none; border: none; width: 100%; padding: 10px; cursor: pointer;">Se déconnecter</button>
+                </form>
+            </div>
             <nav>
                 <ul style="display: flex; justify-content: center; list-style: none; padding: 0;">
                     <li style="margin-right: 15px;"><a href="{% url 'flux' %}">Flux</a></li>
                     <li style="margin-right: 15px;"><a href="{% url 'post' %}">Post</a></li>
                     <li style="margin-right: 15px;"><a href="{% url 'abonnement' %}">Abonnement</a></li>
-                    <li>{{ request.user }} - 
-                        <form method="post" action="{% url 'logout' %}" style="display: inline;">
-                            {% csrf_token %}
-                            <button type="submit" style="background: none; border: none; color: blue; cursor: pointer; text-decoration: underline;">Se déconnecter</button>
-                        </form>
-                    </li>
                 </ul>
             </nav>
         {% endif %}
         {% block content %}{% endblock content %}
-        
     </body>
 </html>
