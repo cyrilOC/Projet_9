@@ -1,179 +1,92 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Post</h2>
+<h2>Créer un ticket</h2>
 {% if message %}
     <p style="color: green;">{{ message }}</p>
 {% endif %}
-<div style="display: flex; justify-content: space-between;">
-    <div style="width: 45%; border: 1px solid #ccc; padding: 20px;">
-        <h3>Créer un ticket</h3>
-        <form method="post" action="">
-            {% csrf_token %}
-            <label for="ticket-title">Titre du ticket :</label>
-            <input type="text" id="ticket-title" name="title" required>
-            <br>
-            <br>
-            <label for="ticket-description">Description :</label>
-            <br>
-            <textarea id="ticket-description" name="description" required></textarea>
-            <br><br>
-            <button type="submit">Créer le ticket</button>
-        </form>
-    </div>
-    <div style="width: 45%; border: 1px solid #ccc; padding: 20px;">
-        <h3>Créer une Critique</h3>
-        <form method="post" action="">
-            {% csrf_token %}
-            <div class="search-container">
-                <label for="ticket-search-input">Rechercher un ticket :</label>
-                <input type="text" id="ticket-search-input" placeholder="Commencer à taper un titre..." oninput="searchTickets(this.value)">
-                <div id="ticket-results" class="search-results-dropdown"></div>
-                <input type="hidden" id="selected-ticket-id" name="selected_ticket">
-            </div>
-            <div id="selected-ticket-info" style="margin: 15px 0; padding: 10px; border: 1px solid #eee; display: none;">
-                <h4 id="selected-ticket-title"></h4>
-                <p id="selected-ticket-description" style="font-size: 0.9em; color: #666;"></p>
-            </div>
 
-            <label for="review-headline">Titre de la critique :</label>
-            <input type="text" id="review-headline" name="headline" required>
-            <br><br>
-            <label for="review-body">Contenu :</label>
-            <br>
-            <textarea id="review-body" name="body" required></textarea>
-            <br><br>
-            <label>Note :</label>
-            <div id="star-rating" style="display: flex; gap: 5px;">
-                {% for i in "12345" %}
-                <span class="star" data-value="{{ i }}" style="font-size: 24px; cursor: pointer;">☆</span>
-                {% endfor %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div style="border: 1px solid #ccc; padding: 20px; margin-bottom: 20px; border-radius: 5px;">
+        <h3>Informations du ticket</h3>
+        <form method="post" action="" enctype="multipart/form-data" id="ticket-form">
+            {% csrf_token %}
+            <div style="margin-bottom: 15px;">
+                <label for="ticket-title" style="display: block; margin-bottom: 5px;">Titre du ticket :</label>
+                <input type="text" id="ticket-title" name="title" required style="width: 100%; padding: 8px; box-sizing: border-box;">
             </div>
-            <input type="hidden" id="review-rating" name="rating" required>
-            <br><br>
-            <button type="submit">Créer la critique</button>
+            
+            <div style="margin-bottom: 15px;">
+                <label for="ticket-description" style="display: block; margin-bottom: 5px;">Description :</label>
+                <textarea id="ticket-description" name="description" required style="width: 100%; min-height: 100px; padding: 8px; box-sizing: border-box;"></textarea>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label for="ticket-image" style="display: block; margin-bottom: 5px;">Image (optionnelle) :</label>
+                <input type="file" id="ticket-image" name="image" accept="image/*">
+            </div>
+            
+            <div style="margin-bottom: 15px; padding: 10px; background-color: #f9f9f9; border-radius: 5px;">
+                <p style="margin-top: 0; font-weight: bold;">Voulez-vous créer une critique pour ce ticket ?</p>
+                <label style="margin-right: 15px;">
+                    <input type="radio" name="create_review" value="no" checked onclick="toggleReviewSection(false)"> Non
+                </label>
+                <label>
+                    <input type="radio" name="create_review" value="yes" onclick="toggleReviewSection(true)"> Oui
+                </label>
+            </div>
+            
+            <!-- Section pour la critique (initialement cachée) -->
+            <div id="review-section" style="display: none; border-top: 1px dashed #ccc; padding-top: 15px; margin-top: 15px;">
+                <h3>Critique du ticket</h3>
+                
+                <div style="margin-bottom: 15px;">
+                    <label for="review-headline" style="display: block; margin-bottom: 5px;">Titre de la critique :</label>
+                    <input type="text" id="review-headline" name="headline" style="width: 100%; padding: 8px; box-sizing: border-box;">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label for="review-body" style="display: block; margin-bottom: 5px;">Contenu :</label>
+                    <textarea id="review-body" name="body" style="width: 100%; min-height: 150px; padding: 8px; box-sizing: border-box;"></textarea>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">Note :</label>
+                    <div id="star-rating" style="display: flex; gap: 5px;">
+                        {% for i in "12345" %}
+                        <span class="star" data-value="{{ i }}" style="font-size: 24px; cursor: pointer;">☆</span>
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" id="review-rating" name="rating">
+                </div>
+            </div>
+            
+            <button type="submit" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 15px;">Publier</button>
         </form>
     </div>
 </div>
 
-<style>
-.search-container {
-    position: relative;
-    width: 100%;
-}
-
-#ticket-search-input {
-    width: 100%;
-    padding: 8px;
-    box-sizing: border-box;
-    margin-bottom: 5px;
-}
-
-.search-results-dropdown {
-    position: absolute;
-    width: 100%;
-    max-height: 200px;
-    overflow-y: auto;
-    background-color: white;
-    border: 1px solid #ddd;
-    z-index: 1000;
-    display: none;
-}
-
-.search-result-item {
-    padding: 8px;
-    cursor: pointer;
-    border-bottom: 1px solid #eee;
-}
-
-.search-result-item:hover {
-    background-color: #f1f1f1;
-}
-</style>
-
 <script>
-let selectedTicketData = null;
-
-function searchTickets(query) {
-    fetch(`/search_tickets/?q=${query}`)
-        .then(response => response.json())
-        .then(data => {
-            const resultsContainer = document.getElementById('ticket-results');
-            resultsContainer.innerHTML = '';
-            
-            if (data.length > 0) {
-                data.forEach(ticket => {
-                    const item = document.createElement('div');
-                    item.className = 'search-result-item';
-                    item.textContent = ticket.title;
-                    item.onclick = function() { selectTicket(ticket); };
-                    resultsContainer.appendChild(item);
-                });
-                resultsContainer.style.display = 'block';
-            } else {
-                const item = document.createElement('div');
-                item.className = 'search-result-item';
-                item.textContent = query ? 'Aucun ticket trouvé' : 'Commencez à taper pour rechercher';
-                resultsContainer.appendChild(item);
-                resultsContainer.style.display = 'block';
-            }
-        });
+// Fonction pour afficher/masquer la section de critique
+function toggleReviewSection(show) {
+    const reviewSection = document.getElementById('review-section');
+    
+    if (show) {
+        reviewSection.style.display = 'block';
+        // Rendre les champs de la critique obligatoires
+        document.getElementById('review-headline').required = true;
+        document.getElementById('review-body').required = true;
+        document.getElementById('review-rating').required = true;
+    } else {
+        reviewSection.style.display = 'none';
+        // Rendre les champs de la critique optionnels
+        document.getElementById('review-headline').required = false;
+        document.getElementById('review-body').required = false;
+        document.getElementById('review-rating').required = false;
+    }
 }
 
-function selectTicket(ticket) {
-    selectedTicketData = ticket;
-    document.getElementById('ticket-search-input').value = ticket.title;
-    document.getElementById('selected-ticket-id').value = ticket.id;
-    document.getElementById('ticket-results').style.display = 'none';
-    
-    // Afficher les informations du ticket sélectionné
-    document.getElementById('selected-ticket-title').textContent = ticket.title;
-    if(ticket.description) {
-        document.getElementById('selected-ticket-description').textContent = ticket.description;
-    } else {
-        document.getElementById('selected-ticket-description').textContent = 'Pas de description disponible';
-    }
-    
-    // Ajouter l'information sur l'auteur du ticket
-    const authorInfo = document.createElement('p');
-    authorInfo.textContent = `Créé par: ${ticket.user}`;
-    authorInfo.style.fontStyle = 'italic';
-    authorInfo.style.marginTop = '5px';
-    
-    const ticketInfo = document.getElementById('selected-ticket-info');
-    // Supprimer l'ancien auteur s'il existe déjà
-    const existingAuthor = ticketInfo.querySelector('.ticket-author');
-    if (existingAuthor) {
-        existingAuthor.remove();
-    }
-    
-    authorInfo.className = 'ticket-author';
-    ticketInfo.appendChild(authorInfo);
-    
-    document.getElementById('selected-ticket-info').style.display = 'block';
-}
-
-// Cliquer en dehors du menu déroulant le ferme
-document.addEventListener('click', function(event) {
-    const resultsContainer = document.getElementById('ticket-results');
-    const searchInput = document.getElementById('ticket-search-input');
-    
-    if (event.target !== resultsContainer && event.target !== searchInput && !resultsContainer.contains(event.target)) {
-        resultsContainer.style.display = 'none';
-    }
-});
-
-// Afficher les résultats quand l'input reçoit le focus
-document.getElementById('ticket-search-input').addEventListener('focus', function() {
-    const resultsContainer = document.getElementById('ticket-results');
-    if (resultsContainer.children.length > 0) {
-        resultsContainer.style.display = 'block';
-    } else {
-        searchTickets('');
-    }
-});
-
-// Étoiles de notation
+// Configuration des étoiles pour la notation dans la section du nouveau ticket
 document.querySelectorAll('.star').forEach(star => {
     star.addEventListener('click', function() {
         const rating = this.getAttribute('data-value');
@@ -182,11 +95,6 @@ document.querySelectorAll('.star').forEach(star => {
             s.textContent = s.getAttribute('data-value') <= rating ? '★' : '☆';
         });
     });
-});
-
-// Charger des résultats par défaut au chargement de la page
-document.addEventListener('DOMContentLoaded', function() {
-    searchTickets('');
 });
 </script>
 {% endblock %}

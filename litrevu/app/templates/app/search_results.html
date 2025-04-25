@@ -33,8 +33,19 @@
                 </a> - {{ ticket.created_at|date:"d/m/Y H:i" }}</small>
             </p>
             
+            <!-- Ajout du bouton Modifier si l'utilisateur est le créateur -->
+            {% if ticket.user == request.user %}
+            <div style="float: right; margin-top: -30px;">
+                <a href="{% url 'edit_ticket' ticket_id=ticket.id %}" class="edit-button" style="padding: 5px 10px; background-color: #FF9800; color: white; text-decoration: none; border-radius: 3px; margin-right: 5px;">Modifier</a>
+            </div>
+            {% endif %}
+            
             {% if ticket.description %}
                 <p>{{ ticket.description|truncatewords:50 }}</p>
+            {% endif %}
+            
+            {% if ticket.image %}
+                <img src="{{ ticket.image.url }}" alt="Image du ticket" style="max-width: 300px; margin-top: 10px; border-radius: 5px;">
             {% endif %}
             
             <!-- Statistiques du ticket -->

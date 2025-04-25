@@ -4,8 +4,16 @@
 
 {% block content %}
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <h2>Publications de {{ target_user.username }}</h2>
-    
+    <div style="display: flex; align-items: center;">
+        {% if target_user.profile_picture %}
+            <img src="{{ target_user.profile_picture.url }}" alt="Photo de profil" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
+        {% else %}
+            <div style="width: 50px; height: 50px; border-radius: 50%; background-color: #2196F3; color: white; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 18px; margin-right: 10px;">
+                {{ target_user.username|slice:":1"|upper }}
+            </div>
+        {% endif %}
+        <h2>Publications de {{ target_user.username }}</h2>
+    </div>
     <!-- Bouton Abonnement/Désabonnement si l'utilisateur n'est pas sur son propre profil -->
     {% if target_user != request.user %}
         <div>
@@ -63,18 +71,23 @@
                     <h3>{{ item.title }}</h3>
                     <p><small>Publié le {{ item.created_at|date:"d/m/Y H:i" }}</small></p>
                     
-                    <!-- Bouton pour créer une critique sur ce ticket (uniquement si ce n'est pas déjà fait) -->
-                    {% if request.user != target_user %}
-                        <div style="float: right; margin-top: -30px;">
+                    <!-- Boutons d'action -->
+                    <div style="float: right; margin-top: -30px;">
+                        {% if request.user != target_user %}
                             <a href="{% url 'create_review_for_ticket' ticket_id=item.id %}" class="review-button" style="padding: 5px 10px; background-color: #2196F3; color: white; text-decoration: none; border-radius: 3px;">Faire une critique</a>
-                        </div>
-                    {% endif %}
+                        {% endif %}
+                        
+                        <!-- Ajout du bouton Modifier si l'utilisateur est le créateur -->
+                        {% if request.user == item.user %}
+                            <a href="{% url 'edit_ticket' ticket_id=item.id %}" class="edit-button" style="padding: 5px 10px; background-color: #FF9800; color: white; text-decoration: none; border-radius: 3px; margin-left: 5px;">Modifier</a>
+                        {% endif %}
+                    </div>
                     
                     {% if item.description %}
                         <p>{{ item.description }}</p>
                     {% endif %}
                     {% if item.image %}
-                        <img src="{{ item.image.url }}" alt="Image du ticket" style="max-width: 300px;">
+                        <img src="{{ item.image.url }}" alt="Image du ticket" style="max-width: 300px; margin-top: 10px; border-radius: 5px;">
                     {% endif %}
                     
                     <!-- Affichage de la note moyenne et du nombre de critiques -->

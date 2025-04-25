@@ -173,25 +173,59 @@ def post(request):
     tickets = Ticket.objects.filter(user=request.user)
     message = None
 
-    if request.method == 'POST' and 'title' in request.POST:
-        title = request.POST.get('title')
-        description = request.POST.get('description')
-        if title and description:
-            Ticket.objects.create(title=title, description=description, user=request.user)
-            message = f"Le ticket '{title}' a été créé."
+    if request.method == 'POST':
+        # Vérifier s'il s'agit d'une création de ticket
+        if 'title' in request.POST:
+            title = request.POST.get('title')
+            description = request.POST.get('description')
+            image = request.FILES.get('image')  # Récupérer l'image si elle existe
+            create_review = request.POST.get('create_review') == 'yes'
+            
+            if title and description:
+                # Créer le ticket
+                new_ticket = Ticket.objects.create(
+                    title=title,
+                    description=description,
+                    image=image,
+                    user=request.user
+                )
+                
+                # Si l'option de créer une critique est sélectionnée
+                if create_review and 'headline' in request.POST:
+                    headline = request.POST.get('headline')
+                    body = request.POST.get('body')
+                    rating = request.POST.get('rating')
+                    
+                    if headline and body and rating:
+                        Review.objects.create(
+                            ticket=new_ticket,
+                            headline=headline,
+                            body=body,
+                            rating=rating,
+                            user=request.user
+                        )
+                        message = f"Le ticket '{title}' et votre critique ont été créés."
+                    else:
+                        message = f"Le ticket '{title}' a été créé, mais la critique n'a pas pu être ajoutée."
+                else:
+                    message = f"Le ticket '{title}' a été créé."
+                    
+                # Rediriger vers le flux après la création
+                return redirect('flux')
+                
+        # Traitement des critiques séparées (ancien code)
+        elif 'headline' in request.POST and 'selected_ticket' in request.POST:
+            ticket_id = request.POST.get('selected_ticket')
+            headline = request.POST.get('headline')
+            body = request.POST.get('body')
+            rating = request.POST.get('rating')
 
-    if request.method == 'POST' and 'headline' in request.POST:
-        ticket_id = request.POST.get('selected_ticket')
-        headline = request.POST.get('headline')
-        body = request.POST.get('body')
-        rating = request.POST.get('rating')
-
-        try:
-            ticket = Ticket.objects.get(id=ticket_id)
-            Review.objects.create(ticket=ticket, headline=headline, body=body, rating=rating, user=request.user)
-            message = "Votre critique a été créée."
-        except Ticket.DoesNotExist:
-            message = "Le ticket sélectionné n'existe pas."
+            try:
+                ticket = Ticket.objects.get(id=ticket_id)
+                Review.objects.create(ticket=ticket, headline=headline, body=body, rating=rating, user=request.user)
+                message = "Votre critique a été créée."
+            except Ticket.DoesNotExist:
+                message = "Le ticket sélectionné n'existe pas."
 
     return render(request, 'app/post.html', {'tickets': tickets, 'message': message})
 

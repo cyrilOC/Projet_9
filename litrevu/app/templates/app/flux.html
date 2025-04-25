@@ -38,13 +38,18 @@
                     <!-- Bouton pour créer une critique sur ce ticket -->
                     <div style="float: right; margin-top: -30px;">
                         <a href="{% url 'create_review_for_ticket' ticket_id=item.id %}" class="review-button" style="padding: 5px 10px; background-color: #2196F3; color: white; text-decoration: none; border-radius: 3px;">Faire une critique</a>
+                        
+                        <!-- Ajout du bouton Modifier si l'utilisateur est le créateur -->
+                        {% if item.user == request.user %}
+                        <a href="{% url 'edit_ticket' ticket_id=item.id %}" class="edit-button" style="padding: 5px 10px; background-color: #FF9800; color: white; text-decoration: none; border-radius: 3px; margin-left: 5px;">Modifier</a>
+                        {% endif %}
                     </div>
                     
                     {% if item.description %}
                         <p>{{ item.description }}</p>
                     {% endif %}
                     {% if item.image %}
-                        <img src="{{ item.image.url }}" alt="Image du ticket" style="max-width: 300px;">
+                        <img src="{{ item.image.url }}" alt="Image du ticket" style="max-width: 300px; margin-top: 10px; border-radius: 5px;">
                     {% endif %}
                     
                     <!-- Affichage de la note moyenne et du nombre de critiques -->
