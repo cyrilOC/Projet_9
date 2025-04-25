@@ -1,7 +1,3 @@
 env-django/
 **/__pycache__/
-litrevu/app/__pycache__/admin.cpython-311.pyc
-litrevu/app/__pycache__/admin.cpython-311.pyc
-litrevu/app/__pycache__/models.cpython-311.pyc
-litrevu/app/__pycache__/views.cpython-311.pyc
-litrevu/app/__pycache__/views.cpython-311.pyc
+*.pyc
