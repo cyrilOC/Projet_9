@@ -1,0 +1,92 @@
+[
+  {
+    "title": "1984",
+    "description": "Dans une dystopie totalitaire, Winston Smith tente de résister à Big Brother qui surveille constamment les citoyens. Ce roman explore les dangers de la surveillance de masse, la manipulation de la vérité et l'oppression politique.",
+    "status": "open",
+    "priority": "medium"
+  },
+  {
+    "title": "Les Misérables",
+    "description": "L'ex-bagnard Jean Valjean cherche la rédemption tout en étant poursuivi par l'inspecteur Javert. Ce chef-d'œuvre de Victor Hugo évoque la justice sociale dans la France du XIXe siècle, mêlant plusieurs destins autour de valeurs d'humanité et de compassion.",
+    "status": "open",
+    "priority": "high"
+  },
+  {
+    "title": "Crime et Châtiment",
+    "description": "Raskolnikov, un étudiant désargenté, assassine une vieille usurière, convaincu que certains êtres supérieurs ont le droit de transgresser les lois. Ce roman de Dostoïevski explore les tourments psychologiques du criminel confronté à sa conscience.",
+    "status": "open",
+    "priority": "medium"
+  },
+  {
+    "title": "Madame Bovary",
+    "description": "Emma Bovary, mariée à un médecin de campagne, s'ennuie dans sa vie provinciale et cherche à s'évader à travers des liaisons amoureuses et le luxe. Ce roman de Flaubert dépeint les désillusions d'une femme romantique confrontée à la banalité de l'existence.",
+    "status": "open",
+    "priority": "medium"
+  },
+  {
+    "title": "L'Étranger",
+    "description": "Meursault, un homme indifférent au monde, tue un Arabe sans motif apparent et affronte son procès avec détachement. Ce roman d'Albert Camus illustre l'absurdité de l'existence et l'aliénation de l'individu dans une société qui impose ses codes.",
+    "status": "open",
+    "priority": "high"
+  },
+  {
+    "title": "Don Quichotte",
+    "description": "Un gentilhomme, l'esprit troublé par les romans de chevalerie, s'imagine chevalier errant et part à l'aventure avec son écuyer Sancho Panza. Ce roman de Cervantes, à la fois comique et profond, questionne les frontières entre folie et sagesse, illusion et réalité.",
+    "status": "open",
+    "priority": "medium"
+  },
+  {
+    "title": "Orgueil et Préjugés",
+    "description": "Elizabeth Bennet et Mr. Darcy doivent surmonter leur orgueil et leurs préjugés pour s'aimer. Jane Austen dépeint avec finesse et ironie les mœurs de la société anglaise du début du XIXe siècle, où les femmes cherchent à se marier avantageusement.",
+    "status": "open",
+    "priority": "medium"
+  },
+  {
+    "title": "Le Petit Prince",
+    "description": "Un aviateur échoué dans le désert rencontre un mystérieux petit prince venu d'une autre planète. À travers leurs conversations, Saint-Exupéry compose un conte philosophique et poétique sur l'amitié, l'amour et le sens de la vie.",
+    "status": "open",
+    "priority": "high"
+  },
+  {
+    "title": "Le Comte de Monte-Cristo",
+    "description": "Injustement emprisonné, Edmond Dantès s'évade après quatorze ans, découvre un trésor et revient sous une nouvelle identité pour se venger de ceux qui l'ont trahi. Alexandre Dumas signe une épopée romanesque sur la vengeance, la justice et la rédemption.",
+    "status": "open",
+    "priority": "medium"
+  },
+  {
+    "title": "Les Hauts de Hurlevent",
+    "description": "L'histoire d'amour passionnée et destructrice entre Catherine Earnshaw et Heathcliff, un orphelin recueilli par le père de Catherine. Emily Brontë crée une œuvre sombre et gothique où les sentiments violents se heurtent aux conventions sociales.",
+    "status": "open",
+    "priority": "medium"
+  },
+  {
+    "title": "Anna Karénine",
+    "description": "Anna, une femme mariée de la haute société russe, entame une liaison passionnelle avec le comte Vronski, défiant les conventions sociales. Tolstoï dépeint le dilemme moral d'une femme tiraillée entre son devoir et ses désirs dans la Russie du XIXe siècle.",
+    "status": "open",
+    "priority": "medium"
+  },
+  {
+    "title": "L'Odyssée",
+    "description": "Après la guerre de Troie, Ulysse erre pendant dix ans sur les mers, affrontant monstres et dieux avant de retrouver son royaume d'Ithaque et sa fidèle Pénélope. Ce poème épique d'Homère raconte un voyage initiatique devenu symbole universel du retour au foyer.",
+    "status": "open",
+    "priority": "high"
+  },
+  {
+    "title": "Le Rouge et le Noir",
+    "description": "Julien Sorel, jeune homme ambitieux d'origine modeste, tente de s'élever socialement par l'hypocrisie dans une France post-révolutionnaire divisée entre l'Église (le noir) et l'armée (le rouge). Stendhal dresse un portrait psychologique et social saisissant.",
+    "status": "open",
+    "priority": "medium"
+  },
+  {
+    "title": "Gatsby le Magnifique",
+    "description": "Jay Gatsby, nouveau riche mystérieux, organise des fêtes somptueuses dans l'espoir de reconquérir Daisy Buchanan. À travers cette histoire d'amour impossible, F. Scott Fitzgerald dépeint la décadence de l'Amérique des années 1920 et la vanité du rêve américain.",
+    "status": "open",
+    "priority": "medium"
+  },
+  {
+    "title": "À la recherche du temps perdu",
+    "description": "Le narrateur évoque ses souvenirs, de l'enfance à l'âge adulte, méditant sur l'art, l'amour et la mémoire. Cette œuvre monumentale de Proust explore le temps qui passe, la mémoire involontaire et la révélation artistique comme moyens de retrouver le temps perdu.",
+    "status": "open",
+    "priority": "medium"
+  }
+]
