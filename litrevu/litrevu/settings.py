@@ -27,6 +27,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'maquette.vu-du.net']
 
+# CSRF Trusted Origins for HTTPS requests
+CSRF_TRUSTED_ORIGINS = ['https://maquette.vu-du.net']
+
 # Application definition
 
 INSTALLED_APPS = [
