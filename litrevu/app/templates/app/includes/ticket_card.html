@@ -1,0 +1,66 @@
+{% load static %}
+
+<div class="ticket">
+    <div class="d-flex justify-content-between mb-2">
+        <h3 class="ticket-title">
+            <a href="{% url 'app:ticket_flux' ticket_id=ticket.id %}">{{ ticket.title }}</a>
+        </h3>
+        {% if show_actions and ticket.user == user %}
+        <div class="ticket-actions">
+            <a href="{% url 'app:edit_ticket' ticket_id=ticket.id %}" class="btn btn-sm btn-outline">
+                <i class="fas fa-edit"></i> Modifier
+            </a>
+            <a href="{% url 'app:delete_ticket' ticket_id=ticket.id %}" class="btn btn-sm btn-danger">
+                <i class="fas fa-trash"></i> Supprimer
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <p class="ticket-meta">
+        Par <a href="{% url 'app:user_flux' user_id=ticket.user.id %}">{{ ticket.user.username }}</a> 
+        - {{ ticket.created_at|date:"d/m/Y H:i" }}
+    </p>
+
+    {% if ticket.description %}
+    <div class="ticket-description">
+        {{ ticket.description|linebreaks }}
+    </div>
+    {% endif %}
+
+    {% if ticket.image %}
+    <div class="text-center my-3">
+        <img src="{{ ticket.image.url }}" alt="Image du ticket" class="ticket-image">
+    </div>
+    {% endif %}
+
+    <div class="ticket-stats">
+        {% with reviews_count=ticket.review_set.count %}
+            <div class="d-flex justify-content-between align-items-center">
+                <span>
+                    <strong>Critiques:</strong> {{ reviews_count }}
+                </span>
+                
+                {% if reviews_count > 0 %}
+                    {% with avg_rating=ticket.average_rating %}
+                    <span>
+                        <strong>Note moyenne:</strong> 
+                        <span class="rating-stars">
+                            {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= avg_rating|floatformat:0|add:"0" %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                        </span>
+                        {{ avg_rating|floatformat:1 }}/5
+                    </span>
+                    {% endwith %}
+                {% endif %}
+                
+                {% if not has_review and ticket.user != user %}
+                <a href="{% url 'app:create_review' ticket_id=ticket.id %}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-pen"></i> Écrire une critique
+                </a>
+                {% endif %}
+            </div>
+        {% endwith %}
+    </div>
+</div>
