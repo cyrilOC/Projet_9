@@ -12,8 +12,12 @@
         <div id="selected-user-info" style="margin-top: 20px; display: none;">
             <h4>Utilisateur sélectionné:</h4>
             <p id="selected-username"></p>
-            <button id="subscribe-button" onclick="subscribeUser(selectedUserId, true)">S'abonner</button>
-            <button id="unsubscribe-button" onclick="subscribeUser(selectedUserId, false)" style="display:none;">Se désabonner</button>
+            <div style="display: flex; gap: 10px;">
+                <button id="subscribe-button" onclick="subscribeUser(selectedUserId, true)">S'abonner</button>
+                <button id="unsubscribe-button" onclick="subscribeUser(selectedUserId, false)" style="display:none;">Se désabonner</button>
+                <button id="block-button" onclick="blockUser(selectedUserId, true)" style="background-color: #FF5722; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;">Bloquer</button>
+                <button id="unblock-button" onclick="blockUser(selectedUserId, false)" style="background-color: #9E9E9E; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer; display: none;">Débloquer</button>
+            </div>
         </div>
     </div>
     
@@ -27,6 +31,21 @@
                 </li>
             {% endfor %}
         </ul>
+    </div>
+    
+    <div id="blocked-section" style="width: 100%; border: 1px solid #ccc; padding: 10px;">
+        <h3>Utilisateurs bloqués</h3>
+        <ul style="list-style-type: none; padding: 0;">
+            {% for blocked in blocked_users %}
+                <li style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 5px; border-bottom: 1px solid #eee;">
+                    <span>{{ blocked.username }}</span>
+                    <button class="unblock-btn" onclick="blockUser({{ blocked.id }}, false)" style="background-color: #9E9E9E; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;">Débloquer</button>
+                </li>
+            {% endfor %}
+        </ul>
+        {% if not blocked_users %}
+            <p style="color: #666; font-style: italic;">Aucun utilisateur bloqué</p>
+        {% endif %}
     </div>
     
     <div id="followers-section" style="width: 100%; border: 1px solid #ccc; padding: 10px;">
@@ -118,13 +137,22 @@ function selectUser(user) {
     document.getElementById('selected-username').textContent = user.username;
     document.getElementById('selected-user-info').style.display = 'block';
     
-    // Afficher le bouton approprié
+    // Afficher le bouton approprié pour l'abonnement
     if (user.is_followed) {
         document.getElementById('subscribe-button').style.display = 'none';
         document.getElementById('unsubscribe-button').style.display = 'block';
     } else {
         document.getElementById('subscribe-button').style.display = 'block';
         document.getElementById('unsubscribe-button').style.display = 'none';
+    }
+    
+    // Afficher le bouton approprié pour le blocage
+    if (user.is_blocked) {
+        document.getElementById('block-button').style.display = 'none';
+        document.getElementById('unblock-button').style.display = 'block';
+    } else {
+        document.getElementById('block-button').style.display = 'block';
+        document.getElementById('unblock-button').style.display = 'none';
     }
 }
 
@@ -146,8 +174,22 @@ function subscribeUser(userId, subscribe) {
     });
 }
 
-function refreshSections() {
-    // ...existing code...
+function blockUser(userId, block) {
+    fetch(`/block_user/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ user_id: userId, block: block })
+    }).then(response => {
+        if (response.ok) {
+            // Rafraîchir la page complète après le blocage/déblocage
+            window.location.reload();
+        } else {
+            alert('Une erreur est survenue.');
+        }
+    });
 }
 
 // Cliquer en dehors du menu déroulant le ferme
