@@ -58,3 +58,18 @@ class UserFollows(models.Model):
         # ensures we don't get multiple UserFollows instances
         # for unique user-user_followed pairs
         unique_together = ('user', 'followed_user', )
+
+
+class UserBlocks(models.Model):
+    """Stocke les relations de blocage entre utilisateurs"""
+    user = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, 
+        related_name='blocking')
+    blocked_user = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, 
+        related_name='blocked_by')
+    block_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # S'assurer qu'on n'a pas de doublons de relations user->blocked_user
+        unique_together = ('user', 'blocked_user', )

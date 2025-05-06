@@ -24,6 +24,7 @@ urlpatterns = [
     path('', include('app.urls')),
     # Include authentication urls under 'accounts/' prefix
     path('accounts/', include('authentication.urls')),
+    path('block_user/', app.views.block_user, name='block_user'),
 ]
 
 # Pour servir les fichiers médias en développement
