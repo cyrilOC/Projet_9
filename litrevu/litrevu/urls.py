@@ -18,13 +18,15 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+# Importer les vues directement depuis l'application
+from app import views as app_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('app.urls')),
     # Include authentication urls under 'accounts/' prefix
     path('accounts/', include('authentication.urls')),
-    path('block_user/', app.views.block_user, name='block_user'),
+    path('block_user/', app_views.block_user, name='block_user'),
 ]
 
 # Pour servir les fichiers médias en développement
