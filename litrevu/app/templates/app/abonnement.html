@@ -2,24 +2,8 @@
 
 {% block content %}
 <h2>Abonnement</h2>
-<div style="display: flex; justify-content: space-between;">
-    <div id="followers-section" style="width: 30%; border: 1px solid #ccc; padding: 10px;">
-        <h3>Abonnés</h3>
-        <ul>
-            {% for follower in followers %}
-                <li>{{ follower.username }}</li>
-            {% endfor %}
-        </ul>
-    </div>
-    <div id="following-section" style="width: 30%; border: 1px solid #ccc; padding: 10px;">
-        <h3>Abonné à</h3>
-        <ul>
-            {% for following in following %}
-                <li>{{ following.username }}</li>
-            {% endfor %}
-        </ul>
-    </div>
-    <div style="width: 30%; border: 1px solid #ccc; padding: 10px;">
+<div style="display: flex; flex-direction: column; gap: 20px;">
+    <div style="width: 100%; border: 1px solid #ccc; padding: 10px;">
         <h3>Rechercher un utilisateur</h3>
         <div class="search-container">
             <input type="text" id="user-search-input" placeholder="Commencer à taper un nom..." oninput="searchUsers(this.value)">
@@ -31,6 +15,24 @@
             <button id="subscribe-button" onclick="subscribeUser(selectedUserId, true)">S'abonner</button>
             <button id="unsubscribe-button" onclick="subscribeUser(selectedUserId, false)" style="display:none;">Se désabonner</button>
         </div>
+    </div>
+    
+    <div id="following-section" style="width: 100%; border: 1px solid #ccc; padding: 10px;">
+        <h3>Abonné à</h3>
+        <ul>
+            {% for following in following %}
+                <li>{{ following.username }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    <div id="followers-section" style="width: 100%; border: 1px solid #ccc; padding: 10px;">
+        <h3>Abonnés</h3>
+        <ul>
+            {% for follower in followers %}
+                <li>{{ follower.username }}</li>
+            {% endfor %}
+        </ul>
     </div>
 </div>
 
